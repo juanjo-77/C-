@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "ProyectoTareas/1.0.0": {
+        "runtime": {
+          "ProyectoTareas.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ProyectoTareas/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

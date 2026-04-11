@@ -1,0 +1,14 @@
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/bin/Debug/net10.0/RegistroUsuarios
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/bin/Debug/net10.0/RegistroUsuarios.deps.json
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/bin/Debug/net10.0/RegistroUsuarios.runtimeconfig.json
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/bin/Debug/net10.0/RegistroUsuarios.dll
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/bin/Debug/net10.0/RegistroUsuarios.pdb
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/RegistroUsuarios.GeneratedMSBuildEditorConfig.editorconfig
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/RegistroUsuarios.AssemblyInfoInputs.cache
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/RegistroUsuarios.AssemblyInfo.cs
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/RegistroUsuarios.csproj.CoreCompileInputs.cache
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/RegistroUsuarios.dll
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/refint/RegistroUsuarios.dll
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/RegistroUsuarios.pdb
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/RegistroUsuarios.genruntimeconfig.cache
+/home/csharp/Escritorio/actividad_1/RegistroUsuarios/obj/Debug/net10.0/ref/RegistroUsuarios.dll

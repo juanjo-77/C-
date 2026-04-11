@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegistroUsuarios", "RegistroUsuarios\RegistroUsuarios.csproj", "{0A9A2AA1-0E6B-4A47-A978-1CE78C8A9138}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CRUD_nodos_tareas", "CRUD_nodos_tareas", "{4153549E-A869-0E23-928F-3D6AAF1E64FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProyectoTareas", "CRUD_nodos_tareas\ProyectoTareas\ProyectoTareas.csproj", "{F974BAB4-9D93-FBCA-A03A-3551B1ED6131}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A9A2AA1-0E6B-4A47-A978-1CE78C8A9138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A9A2AA1-0E6B-4A47-A978-1CE78C8A9138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A9A2AA1-0E6B-4A47-A978-1CE78C8A9138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A9A2AA1-0E6B-4A47-A978-1CE78C8A9138}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F974BAB4-9D93-FBCA-A03A-3551B1ED6131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F974BAB4-9D93-FBCA-A03A-3551B1ED6131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F974BAB4-9D93-FBCA-A03A-3551B1ED6131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F974BAB4-9D93-FBCA-A03A-3551B1ED6131}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F974BAB4-9D93-FBCA-A03A-3551B1ED6131} = {4153549E-A869-0E23-928F-3D6AAF1E64FC}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A484A1CA-C4EE-4C29-9841-C664F9448128}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,14 @@
+/home/csharp/Escritorio/operaciones_transporte/MiApp/bin/Debug/net10.0/MiApp
+/home/csharp/Escritorio/operaciones_transporte/MiApp/bin/Debug/net10.0/MiApp.deps.json
+/home/csharp/Escritorio/operaciones_transporte/MiApp/bin/Debug/net10.0/MiApp.runtimeconfig.json
+/home/csharp/Escritorio/operaciones_transporte/MiApp/bin/Debug/net10.0/MiApp.dll
+/home/csharp/Escritorio/operaciones_transporte/MiApp/bin/Debug/net10.0/MiApp.pdb
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/MiApp.GeneratedMSBuildEditorConfig.editorconfig
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/MiApp.AssemblyInfoInputs.cache
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/MiApp.AssemblyInfo.cs
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/MiApp.csproj.CoreCompileInputs.cache
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/MiApp.dll
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/refint/MiApp.dll
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/MiApp.pdb
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/MiApp.genruntimeconfig.cache
+/home/csharp/Escritorio/operaciones_transporte/MiApp/obj/Debug/net10.0/ref/MiApp.dll

@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "QTMTOLQFtTg=",
+  "success": true,
+  "projectFilePath": "/home/csharp/Escritorio/C-/CRUD_nodos_tareas/ProyectoTareas/ProyectoTareas.csproj",
+  "expectedPackageFiles": [
+    "/home/csharp/.nuget/packages/microsoft.netcore.app.host.linux-x64/9.0.14/microsoft.netcore.app.host.linux-x64.9.0.14.nupkg.sha512"
+  ],
+  "logs": []
+}

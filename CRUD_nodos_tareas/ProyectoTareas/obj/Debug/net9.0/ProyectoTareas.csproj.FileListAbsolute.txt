@@ -1,0 +1,14 @@
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\ProyectoTareas.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\ProyectoTareas.AssemblyInfoInputs.cache
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\ProyectoTareas.AssemblyInfo.cs
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\ProyectoTareas.csproj.CoreCompileInputs.cache
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\bin\Debug\net9.0\ProyectoTareas.exe
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\bin\Debug\net9.0\ProyectoTareas.deps.json
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\bin\Debug\net9.0\ProyectoTareas.runtimeconfig.json
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\bin\Debug\net9.0\ProyectoTareas.dll
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\bin\Debug\net9.0\ProyectoTareas.pdb
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\ProyectoTareas.dll
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\refint\ProyectoTareas.dll
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\ProyectoTareas.pdb
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\ProyectoTareas.genruntimeconfig.cache
+C:\Users\salan404\Desktop\CRUD_nodos_tareas\ProyectoTareas\obj\Debug\net9.0\ref\ProyectoTareas.dll
