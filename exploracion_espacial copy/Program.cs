@@ -5,92 +5,411 @@ var context = new AppDbContext();
 context.Database.EnsureCreated();
 
 var astronautaService = new AstronautaService(context);
-var ingenieroService = new IngenieroService(context);
-var naveService = new NaveService(context);
-var misionService = new MisionService(context);
-var registroService = new RegistroExploracionService(context);
-var consultas = new ConsultasService(context);
+var ingenieroService  = new IngenieroService(context);
+var naveService       = new NaveService(context);
+var misionService     = new MisionService(context);
+var registroService   = new RegistroExploracionService(context);
+var consultas         = new ConsultasService(context);
 
-// ============ DATOS DE PRUEBA ============
-Console.WriteLine("=== INSERTANDO DATOS DE PRUEBA ===");
+// ══════════════════════════════
+// FUNCIONES AUXILIARES
+// ══════════════════════════════
 
-Console.WriteLine(astronautaService.Crear("Neil", "Armstrong", "comandante", 5000));
-Console.WriteLine(astronautaService.Crear("Buzz", "Aldrin", "piloto", 3000));
-Console.WriteLine(astronautaService.Crear("Sally", "Ride", "novato", 1200));
+string Pedir(string mensaje)
+{
+    Console.Write(mensaje + ": ");
+    return Console.ReadLine();
+}
 
-Console.WriteLine(ingenieroService.Crear("Ada", "Lovelace", "IA", 10));
-Console.WriteLine(ingenieroService.Crear("Alan", "Turing", "sistemas", 8));
+int PedirNumero(string mensaje)
+{
+    Console.Write(mensaje + ": ");
+    int.TryParse(Console.ReadLine(), out int valor);
+    return valor;
+}
 
-Console.WriteLine(naveService.Crear("Apolo 13", "Lunar Module", 3, "operativa"));
-Console.WriteLine(naveService.Crear("Discovery", "Space Shuttle", 7, "operativa"));
-Console.WriteLine(naveService.Crear("Atlantis", "Space Shuttle", 7, "en mantenimiento"));
+void Pausar()
+{
+    Console.WriteLine("\nPresiona cualquier tecla para continuar...");
+    Console.ReadKey();
+}
 
-var a1 = astronautaService.ObtenerTodos()[0].Id;
-var a2 = astronautaService.ObtenerTodos()[1].Id;
-var n1 = naveService.ObtenerTodos()[0].Id;
-var n2 = naveService.ObtenerTodos()[1].Id;
+void Titulo(string texto)
+{
+    Console.Clear();
+    Console.WriteLine($"=== {texto} ===\n");
+}
 
-Console.WriteLine(misionService.Crear("Apolo Mission 1", DateTime.Now, "completada", a1, n1));
-Console.WriteLine(misionService.Crear("Marte 2025", DateTime.Now.AddDays(30), "en curso", a1, n1));
-Console.WriteLine(misionService.Crear("Luna Base Alpha", DateTime.Now.AddDays(60), "planificada", a2, n2));
-Console.WriteLine(misionService.Crear("Deep Space 9", DateTime.Now.AddDays(90), "en curso", a1, n2));
+// ══════════════════════════════
+// MENÚ PRINCIPAL
+// ══════════════════════════════
 
-var m1 = misionService.ObtenerTodos()[0].Id;
-var m2 = misionService.ObtenerTodos()[1].Id;
+while (true)
+{
+    Titulo("ASTRONOVA MISSION CONTROL");
+    Console.WriteLine("1. Astronautas");
+    Console.WriteLine("2. Ingenieros");
+    Console.WriteLine("3. Naves");
+    Console.WriteLine("4. Misiones");
+    Console.WriteLine("5. Registros de Exploración");
+    Console.WriteLine("6. Consultas");
+    Console.WriteLine("0. Salir");
+    Console.Write("\nOpción: ");
 
-Console.WriteLine(registroService.Crear("Marte", "Superficie rocosa con tormentas de polvo.", "alto", m2));
-Console.WriteLine(registroService.Crear("Luna", "Zona de impacto de meteoritos.", "medio", m1));
-Console.WriteLine(registroService.Crear("Júpiter", "Gran mancha roja visible.", "bajo", m2));
+    switch (Console.ReadLine())
+    {
+        case "1": MenuAstronautas(); break;
+        case "2": MenuIngenieros();  break;
+        case "3": MenuNaves();       break;
+        case "4": MenuMisiones();    break;
+        case "5": MenuRegistros();   break;
+        case "6": MenuConsultas();   break;
+        case "0": return;
+    }
+}
 
-// ============ CONSULTAS BÁSICAS ============
-Console.WriteLine("\n=== CONSULTAS BÁSICAS ===");
 
-Console.WriteLine("\n-- Todas las misiones --");
-var misiones = consultas.ListarTodasLasMisiones();
-foreach (var m in misiones)
-    Console.WriteLine($"  [{m.Id}] {m.NombreMision} - {m.Estado}");
 
-Console.WriteLine("\n-- Naves operativas --");
-var navesOp = consultas.BuscarNavesOperativas();
-foreach (var n in navesOp)
-    Console.WriteLine($"  [{n.Id}] {n.Nombre} - {n.Estado}");
+//=======================================================================================================================
 
-Console.WriteLine("\n-- Astronautas con rango piloto --");
-var pilotos = consultas.FiltrarAstronautasPorRango("piloto");
-foreach (var a in pilotos)
-    Console.WriteLine($"  [{a.Id}] {a.Nombre} {a.Apellido}");
 
-// ============ CONSULTAS CON RELACIONES ============
-Console.WriteLine("\n=== CONSULTAS CON RELACIONES ===");
+// ══════════════════════════════
+// ASTRONAUTAS
+// ══════════════════════════════
 
-Console.WriteLine("\n-- Misiones con astronauta y nave --");
-consultas.MostrarProyeccionMisiones();
+void MenuAstronautas()
+{
 
-Console.WriteLine("\n-- Registros de la misión 1 --");
-var registros = consultas.RegistrosPorMision(m1);
-foreach (var r in registros)
-    Console.WriteLine($"  {r.PlanetaDestino} - {r.NivelRiesgo} - {r.Descripcion}");
+    while (true)
+    {
+        
+        Titulo("ASTRONAUTAS");
+    Console.WriteLine("1. Crear  2. Listar  3. Actualizar  4. Eliminar  0. Volver");
+    Console.Write("Opción: ");
+    var opcion = Console.ReadLine();
 
-// ============ AGRUPACIONES ============
-Console.WriteLine("\n=== AGRUPACIONES ===");
+    if (opcion == "0") return;
 
-Console.WriteLine("\n-- Misiones agrupadas por estado --");
-consultas.AgruparMisionesPorEstado();
+    switch (opcion)
+    {
+        case "1":
+            Console.WriteLine(astronautaService.Crear(
+                Pedir("Nombre"),
+                Pedir("Apellido"),
+                Pedir("Rango (novato/piloto/comandante)"),
+                PedirNumero("Horas de experiencia")
+            ));
+            break;
 
-Console.WriteLine("\n-- Misiones por astronauta --");
-consultas.ContarMisionesPorAstronauta();
+        case "2":
+            var lista = astronautaService.ObtenerTodos();
+            if (!lista.Any()) { Console.WriteLine("No hay astronautas."); break; }
+            foreach (var a in lista)
+                Console.WriteLine($"[{a.Id}] {a.Nombre} {a.Apellido} - {a.Rango} - {a.HorasExperiencia}h");
+            break;
 
-// ============ CONSULTAS AVANZADAS ============
-Console.WriteLine("\n=== CONSULTAS AVANZADAS ===");
+        case "3":
+            Console.WriteLine(astronautaService.Actualizar(
+                PedirNumero("Id a actualizar"),
+                Pedir("Nuevo nombre"),
+                Pedir("Nuevo apellido"),
+                Pedir("Nuevo rango (novato/piloto/comandante)"),
+                PedirNumero("Nuevas horas")
+            ));
+            break;
 
-Console.WriteLine("\n-- Astronautas con más de 3 misiones --");
-consultas.AstronautasConMasDe3Misiones();
+        case "4":
+            Console.WriteLine(astronautaService.Eliminar(PedirNumero("Id a eliminar")));
+            break;
+    }
+    Pausar();
 
-Console.WriteLine("\n-- Naves no utilizadas --");
-consultas.NavesNoUtilizadas();
+    }
 
-Console.WriteLine("\n-- Misiones con riesgo alto --");
-consultas.MisionesConRiesgoAlto();
+    
+}
 
-Console.WriteLine("\n-- Misiones en curso con registros --");
-consultas.MisionesEnCursoConRegistros();
+// ══════════════════════════════
+// INGENIEROS
+// ══════════════════════════════
+
+void MenuIngenieros()
+{
+
+    while (true)
+    {
+        
+    Titulo("INGENIEROS");
+    Console.WriteLine("1. Crear  2. Listar  3. Actualizar  4. Eliminar  0. Volver");
+    Console.Write("Opción: ");
+    var opcion = Console.ReadLine();
+
+    if (opcion == "0") return;
+
+    switch (opcion)
+    {
+        case "1":
+            Console.WriteLine(ingenieroService.Crear(
+                Pedir("Nombre"),
+                Pedir("Apellido"),
+                Pedir("Especialidad"),
+                PedirNumero("Años de experiencia")
+            ));
+            break;
+
+        case "2":
+            var lista = ingenieroService.ObtenerTodos();
+            if (!lista.Any()) { Console.WriteLine("No hay ingenieros."); break; }
+            foreach (var i in lista)
+                Console.WriteLine($"[{i.Id}] {i.Nombre} {i.Apellido} - {i.Especialidad} - {i.AniosExperiencia} años");
+            break;
+
+        case "3":
+            Console.WriteLine(ingenieroService.Actualizar(
+                PedirNumero("Id a actualizar"),
+                Pedir("Nuevo nombre"),
+                Pedir("Nuevo apellido"),
+                Pedir("Nueva especialidad"),
+                PedirNumero("Nuevos años")
+            ));
+            break;
+
+        case "4":
+            Console.WriteLine(ingenieroService.Eliminar(PedirNumero("Id a eliminar")));
+            break;
+    }
+    Pausar();
+
+    }
+
+    
+}
+
+// ══════════════════════════════
+// NAVES
+// ══════════════════════════════
+
+void MenuNaves()
+{
+
+    while (true)
+    {
+
+    Titulo("NAVES");
+    Console.WriteLine("1. Crear  2. Listar  3. Actualizar  4. Eliminar  0. Volver");
+    Console.Write("Opción: ");
+    var opcion = Console.ReadLine();
+
+    if (opcion == "0") return;
+
+    switch (opcion)
+    {
+        case "1":
+            Console.WriteLine(naveService.Crear(
+                Pedir("Nombre"),
+                Pedir("Modelo"),
+                PedirNumero("Capacidad de tripulación"),
+                Pedir("Estado (operativa/en mantenimiento/retirada)")
+            ));
+            break;
+
+        case "2":
+            var lista = naveService.ObtenerTodos();
+            if (!lista.Any()) { Console.WriteLine("No hay naves."); break; }
+            foreach (var n in lista)
+                Console.WriteLine($"[{n.Id}] {n.Nombre} - {n.Modelo} - Cap:{n.CapacidadTripulacion} - {n.Estado}");
+            break;
+
+        case "3":
+            Console.WriteLine(naveService.Actualizar(
+                PedirNumero("Id a actualizar"),
+                Pedir("Nuevo nombre"),
+                Pedir("Nuevo modelo"),
+                PedirNumero("Nueva capacidad"),
+                Pedir("Nuevo estado")
+            ));
+            break;
+
+        case "4":
+            Console.WriteLine(naveService.Eliminar(PedirNumero("Id a eliminar")));
+            break;
+    }
+    Pausar();
+
+    }
+
+}
+
+// ══════════════════════════════
+// MISIONES
+// ══════════════════════════════
+
+void MenuMisiones()
+{
+
+    while (true)
+    {
+        
+    Titulo("MISIONES");
+    Console.WriteLine("1. Crear  2. Listar  3. Actualizar  4. Eliminar  0. Volver");
+    Console.Write("Opción: ");
+    var opcion = Console.ReadLine();
+
+    if (opcion == "0") return;
+
+    switch (opcion)
+    {
+        case "1":
+            var fechaTexto = Pedir("Fecha de lanzamiento (dd/MM/yyyy)");
+            DateTime.TryParseExact(fechaTexto, "dd/MM/yyyy",
+                null, System.Globalization.DateTimeStyles.None, out DateTime fecha);
+            Console.WriteLine(misionService.Crear(
+                Pedir("Nombre de la misión"),
+                fecha,
+                Pedir("Estado (planificada/en curso/completada/fallida)"),
+                PedirNumero("Id del astronauta"),
+                PedirNumero("Id de la nave")
+            ));
+            break;
+
+        case "2":
+            var lista = misionService.ObtenerTodos();
+            if (!lista.Any()) { Console.WriteLine("No hay misiones."); break; }
+            foreach (var m in lista)
+                Console.WriteLine($"[{m.Id}] {m.NombreMision} - {m.Estado} - {m.FechaLanzamiento:dd/MM/yyyy}");
+            break;
+
+        case "3":
+            var nuevaFechaTexto = Pedir("Nueva fecha (dd/MM/yyyy)");
+            DateTime.TryParseExact(nuevaFechaTexto, "dd/MM/yyyy",
+                null, System.Globalization.DateTimeStyles.None, out DateTime nuevaFecha);
+            Console.WriteLine(misionService.Actualizar(
+                PedirNumero("Id a actualizar"),
+                Pedir("Nuevo nombre"),
+                nuevaFecha,
+                Pedir("Nuevo estado"),
+                PedirNumero("Nuevo Id astronauta"),
+                PedirNumero("Nuevo Id nave")
+            ));
+            break;
+
+        case "4":
+            Console.WriteLine(misionService.Eliminar(PedirNumero("Id a eliminar")));
+            break;
+    }
+    Pausar();
+
+    }
+
+    
+}
+
+// ══════════════════════════════
+// REGISTROS
+// ══════════════════════════════
+
+void MenuRegistros()
+{
+
+    while (true)
+    {
+        
+    Titulo("REGISTROS DE EXPLORACIÓN");
+    Console.WriteLine("1. Crear  2. Listar  3. Actualizar  4. Eliminar  0. Volver");
+    Console.Write("Opción: ");
+    var opcion = Console.ReadLine();
+
+    if (opcion == "0") return;
+
+    switch (opcion)
+    {
+        case "1":
+            Console.WriteLine(registroService.Crear(
+                Pedir("Planeta destino"),
+                Pedir("Descripción"),
+                Pedir("Nivel de riesgo (bajo/medio/alto)"),
+                PedirNumero("Id de la misión")
+            ));
+            break;
+
+        case "2":
+            var lista = registroService.ObtenerTodos();
+            if (!lista.Any()) { Console.WriteLine("No hay registros."); break; }
+            foreach (var r in lista)
+                Console.WriteLine($"[{r.Id}] {r.PlanetaDestino} - {r.NivelRiesgo} - MisiónId:{r.MisionId}");
+            break;
+
+        case "3":
+            Console.WriteLine(registroService.Actualizar(
+                PedirNumero("Id a actualizar"),
+                Pedir("Nuevo planeta"),
+                Pedir("Nueva descripción"),
+                Pedir("Nuevo nivel de riesgo"),
+                PedirNumero("Nuevo Id de misión")
+            ));
+            break;
+
+        case "4":
+            Console.WriteLine(registroService.Eliminar(PedirNumero("Id a eliminar")));
+            break;
+    }
+    Pausar();
+
+    }
+
+    
+}
+
+// ══════════════════════════════
+// CONSULTAS
+// ══════════════════════════════
+
+void MenuConsultas()
+{
+
+    while (true)
+    {
+        
+    Titulo("CONSULTAS");
+    Console.WriteLine("1. Todas las misiones        7. Misiones por astronauta");
+    Console.WriteLine("2. Naves operativas          8. Astronautas con +3 misiones");
+    Console.WriteLine("3. Astronautas por rango     9. Naves no utilizadas");
+    Console.WriteLine("4. Misiones con detalle      10. Misiones con riesgo alto");
+    Console.WriteLine("5. Registros por misión      11. Misiones en curso");
+    Console.WriteLine("6. Misiones por estado       0. Volver");
+    Console.Write("\nOpción: ");
+    var opcion = Console.ReadLine();
+
+    if (opcion == "0") return;
+
+    switch (opcion)
+    {
+        case "1":
+            foreach (var m in consultas.ListarTodasLasMisiones())
+                Console.WriteLine($"[{m.Id}] {m.NombreMision} - {m.Estado}");
+            break;
+        case "2":
+            foreach (var n in consultas.BuscarNavesOperativas())
+                Console.WriteLine($"[{n.Id}] {n.Nombre}");
+            break;
+        case "3":
+            consultas.FiltrarAstronautasPorRango(Pedir("Rango"))
+                .ForEach(a => Console.WriteLine($"[{a.Id}] {a.Nombre} {a.Apellido}"));
+            break;
+        case "4":  consultas.MostrarProyeccionMisiones();       break;
+        case "5":  consultas.RegistrosPorMision(PedirNumero("Id de misión"))
+                       .ForEach(r => Console.WriteLine($"{r.PlanetaDestino} - {r.NivelRiesgo}"));
+            break;
+        case "6":  consultas.AgruparMisionesPorEstado();        break;
+        case "7":  consultas.ContarMisionesPorAstronauta();     break;
+        case "8":  consultas.AstronautasConMasDe3Misiones();    break;
+        case "9":  consultas.NavesNoUtilizadas();               break;
+        case "10": consultas.MisionesConRiesgoAlto();           break;
+        case "11": consultas.MisionesEnCursoConRegistros();     break;
+    }
+    Pausar();
+
+    }
+
+    
+}

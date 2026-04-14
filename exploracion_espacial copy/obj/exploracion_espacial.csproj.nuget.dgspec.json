@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/csharp/Escritorio/exploracion_espacial/exploracion_espacial/exploracion_espacial.csproj": {}
+    "/home/csharp/Escritorio/C-/exploracion_espacial copy/exploracion_espacial.csproj": {}
   },
   "projects": {
-    "/home/csharp/Escritorio/exploracion_espacial/exploracion_espacial/exploracion_espacial.csproj": {
+    "/home/csharp/Escritorio/C-/exploracion_espacial copy/exploracion_espacial.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/csharp/Escritorio/exploracion_espacial/exploracion_espacial/exploracion_espacial.csproj",
+        "projectUniqueName": "/home/csharp/Escritorio/C-/exploracion_espacial copy/exploracion_espacial.csproj",
         "projectName": "exploracion_espacial",
-        "projectPath": "/home/csharp/Escritorio/exploracion_espacial/exploracion_espacial/exploracion_espacial.csproj",
+        "projectPath": "/home/csharp/Escritorio/C-/exploracion_espacial copy/exploracion_espacial.csproj",
         "packagesPath": "/home/csharp/.nuget/packages/",
-        "outputPath": "/home/csharp/Escritorio/exploracion_espacial/exploracion_espacial/obj/",
+        "outputPath": "/home/csharp/Escritorio/C-/exploracion_espacial copy/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/csharp/.nuget/NuGet/NuGet.Config"
