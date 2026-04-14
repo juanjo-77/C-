@@ -1,0 +1,38 @@
+@model List<CrudMVC.Models.Cliente>
+@{ ViewData["Title"] = "Clientes"; }
+
+<h2>Clientes</h2>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+<a asp-action="Create" class="btn btn-primary mb-3">+ Nuevo Cliente</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Ciudad</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.Nombre</td>
+                <td>@c.Email</td>
+                <td>@c.Telefono</td>
+                <td>@c.Ciudad</td>
+                <td>
+                    <a asp-action="Edit"   asp-route-id="@c.Id" class="btn btn-sm btn-warning">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-danger" >Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
