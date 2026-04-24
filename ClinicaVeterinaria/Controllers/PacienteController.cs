@@ -1,7 +1,7 @@
 
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Collections.Generic; // quiero usar listas y colecciones
+using System.Threading.Tasks;  // quiero hacer tareas sin bloquear el programa
 using ClinicaVeterinaria.Models;
 using ClinicaVeterinaria.Services;
 
