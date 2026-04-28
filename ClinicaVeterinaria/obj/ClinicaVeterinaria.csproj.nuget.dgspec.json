@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/coders/Escritorio/ClinicaVeterinaria/ClinicaVeterinaria.csproj": {}
+    "/home/cohorte8/Escritorio/C-/ClinicaVeterinaria/ClinicaVeterinaria.csproj": {}
   },
   "projects": {
-    "/home/coders/Escritorio/ClinicaVeterinaria/ClinicaVeterinaria.csproj": {
+    "/home/cohorte8/Escritorio/C-/ClinicaVeterinaria/ClinicaVeterinaria.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/coders/Escritorio/ClinicaVeterinaria/ClinicaVeterinaria.csproj",
+        "projectUniqueName": "/home/cohorte8/Escritorio/C-/ClinicaVeterinaria/ClinicaVeterinaria.csproj",
         "projectName": "ClinicaVeterinaria",
-        "projectPath": "/home/coders/Escritorio/ClinicaVeterinaria/ClinicaVeterinaria.csproj",
-        "packagesPath": "/home/coders/.nuget/packages/",
-        "outputPath": "/home/coders/Escritorio/ClinicaVeterinaria/obj/",
+        "projectPath": "/home/cohorte8/Escritorio/C-/ClinicaVeterinaria/ClinicaVeterinaria.csproj",
+        "packagesPath": "/home/cohorte8/.nuget/packages/",
+        "outputPath": "/home/cohorte8/Escritorio/C-/ClinicaVeterinaria/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/coders/.nuget/NuGet/NuGet.Config"
+          "/home/cohorte8/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"

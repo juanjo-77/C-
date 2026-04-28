@@ -1,12 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "bVsTbttrJ/w=",
+  "dgSpecHash": "qZljzyPcvSA=",
   "success": true,
-  "projectFilePath": "/home/coders/Escritorio/C-/CrudMVC/CrudMVC.csproj",
-  "expectedPackageFiles": [
-    "/home/coders/.nuget/packages/microsoft.netcore.app.ref/8.0.21/microsoft.netcore.app.ref.8.0.21.nupkg.sha512",
-    "/home/coders/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.21/microsoft.aspnetcore.app.ref.8.0.21.nupkg.sha512",
-    "/home/coders/.nuget/packages/microsoft.netcore.app.host.linux-x64/8.0.21/microsoft.netcore.app.host.linux-x64.8.0.21.nupkg.sha512"
-  ],
+  "projectFilePath": "/home/cohorte8/Escritorio/C-/CrudMVC/CrudMVC.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
