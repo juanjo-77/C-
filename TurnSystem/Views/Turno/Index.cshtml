@@ -1,0 +1,452 @@
+﻿@{
+    ViewData["Title"] = "Registro de Turno";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page turno-page">
+    <div class="turno-layout">
+
+        <!-- Formulario -->
+        <div class="turno-form-col fade-in">
+            <p class="section-label">Módulo de Turno</p>
+            <h1 class="section-title">Solicita tu <span>Turno</span></h1>
+            <p style="color:var(--text-muted); margin: 12px 0 32px; font-size:14px;">
+                Ingresa tu documento. Si ya estás registrado, tu turno se genera al instante.
+            </p>
+
+            <div id="alert-container"></div>
+
+            <!-- PASO 1: Buscar por documento -->
+            <form id="paso-buscar" class="card" onsubmit="buscarDocumento(); return false;">
+                <div class="form-group">
+                    <label class="form-label">Documento de Identidad *</label>
+                    <input type="text"
+                           id="documento"
+                           name="documento"
+                           class="form-control"
+                           placeholder="Ej: 1234567890"
+                           maxlength="20"
+                           required />
+                </div>
+
+                <button type="submit" class="btn btn-gold btn-full btn-lg">
+                    Buscar →
+                </button>
+            </form>
+
+            <!-- PASO 2: Registro (solo si no existe) -->
+            <div id="paso-registro" class="card" style="display:none;">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                    <button class="btn btn-outline btn-sm" onclick="volverBuscar()">← Volver</button>
+                    <div>
+                        <p style="font-size:12px; color:var(--text-muted);">Usuario no encontrado</p>
+                        <p style="font-size:14px; color:var(--text-primary); font-weight:500;">Completa tu registro</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Documento</label>
+                    <input type="text" id="doc-readonly" class="form-control" readonly
+                           style="opacity:.6; cursor:not-allowed;" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo *</label>
+                    <input type="text" id="nombre" class="form-control"
+                           placeholder="Nombre y apellidos" maxlength="100" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Servicio *</label>
+                    <select id="servicio" class="form-control">
+                        <option value="">Selecciona el servicio</option>
+                        <option value="Consulta General">Consulta General</option>
+                        <option value="Pediatría">Pediatría</option>
+                        <option value="Cardiología">Cardiología</option>
+                        <option value="Laboratorio">Laboratorio</option>
+                        <option value="Farmacia">Farmacia</option>
+                        <option value="Urgencias">Urgencias</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Prioridad *</label>
+                    <div class="priority-group">
+                        <label class="priority-option">
+                            <input type="radio" name="prioridad" value="Normal" checked />
+                            <span class="priority-btn">
+                                <span class="priority-dot" style="background:#94b8ad"></span>Normal
+                            </span>
+                        </label>
+                        <label class="priority-option">
+                            <input type="radio" name="prioridad" value="VIP" />
+                            <span class="priority-btn">
+                                <span class="priority-dot" style="background:#c9a84c"></span>VIP
+                            </span>
+                        </label>
+                        <label class="priority-option">
+                            <input type="radio" name="prioridad" value="Urgencia" />
+                            <span class="priority-btn">
+                                <span class="priority-dot" style="background:#ef4444"></span>Urgencia
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="btn-registrar" class="btn btn-gold btn-full btn-lg" onclick="registrarYGenerar()">
+                    ✦ Registrar y Generar Turno
+                </button>
+            </div>
+        </div>
+
+        <!-- Ticket resultado -->
+        <div class="turno-ticket-col">
+            <div id="ticket-placeholder" class="ticket-placeholder fade-in-delay-2">
+                <div class="ticket-placeholder-icon">🎫</div>
+                <p>Tu ticket aparecerá aquí</p>
+            </div>
+
+            <div id="ticket-result" style="display:none;">
+                <div class="ticket-card">
+                    <div class="ticket-header">
+                        <span class="ticket-header-text">✦ MEDITURNO</span>
+                        <span id="ticket-badge" class="badge"></span>
+                    </div>
+                    <div class="ticket-body">
+                        <p class="ticket-label">Tu número de turno</p>
+                        <div id="ticket-numero" class="ticket-number"></div>
+                        <p id="ticket-servicio" class="ticket-servicio"></p>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="ticket-footer">
+                        <div class="ticket-info-row">
+                            <span class="ticket-info-label">Paciente</span>
+                            <span id="ticket-nombre" class="ticket-info-value"></span>
+                        </div>
+                        <div class="ticket-info-row">
+                            <span class="ticket-info-label">Documento</span>
+                            <span id="ticket-doc" class="ticket-info-value"></span>
+                        </div>
+                        <div class="ticket-info-row">
+                            <span class="ticket-info-label">Hora</span>
+                            <span id="ticket-hora" class="ticket-info-value"></span>
+                        </div>
+                        <div class="ticket-info-row">
+                            <span class="ticket-info-label">Estado</span>
+                            <span class="ticket-info-value" style="color:#6ee7b7">En espera ✓</span>
+                        </div>
+                    </div>
+                    <p class="ticket-wait-msg">Por favor espere su llamado 🔔</p>
+                    <button class="btn btn-outline btn-full" style="margin-top:16px;" onclick="resetForm()">
+                        + Nuevo Turno
+                    </button>
+                    <button class="btn btn-gold btn-full" style="margin-top:8px;" onclick="reimprimirTicket()">
+                        🖨️ Reimprimir Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.turno-page { min-height: calc(100vh - 64px); }
+
+.turno-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+}
+
+.priority-group { display: flex; gap: 12px; flex-wrap: wrap; }
+.priority-option input { display: none; }
+.priority-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.04);
+    cursor: pointer; font-size: 14px; color: var(--text-muted);
+    transition: var(--transition); user-select: none;
+}
+.priority-option input:checked + .priority-btn {
+    border-color: rgba(201,168,76,.4);
+    background: rgba(201,168,76,.1);
+    color: var(--gold-light);
+}
+.priority-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.ticket-placeholder {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 16px; min-height: 480px;
+    border: 2px dashed rgba(201,168,76,.15);
+    border-radius: var(--radius-xl);
+    color: var(--text-dim); font-size: 14px;
+}
+.ticket-placeholder-icon { font-size: 48px; opacity: .4; }
+
+.ticket-card {
+    background: linear-gradient(160deg, var(--bg-surface), var(--bg-card));
+    border: 1px solid rgba(201,168,76,.25);
+    border-radius: var(--radius-xl);
+    padding: 36px;
+    box-shadow: var(--shadow-gold), var(--shadow);
+    animation: ticketIn .5s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+@@keyframes ticketIn {
+    from { opacity:0; transform: scale(.85) translateY(20px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.ticket-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:32px; }
+.ticket-header-text { font-family:var(--font-display); font-size:16px; color:var(--gold); letter-spacing:2px; }
+.ticket-body { text-align:center; padding:24px 0; }
+.ticket-label { font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); margin-bottom:8px; }
+.ticket-servicio { font-size:16px; color:var(--text-muted); margin-top:8px; }
+.ticket-footer { display:flex; flex-direction:column; gap:10px; }
+.ticket-info-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; }
+.ticket-info-label { color:var(--text-dim); }
+.ticket-info-value { color:var(--text-primary); font-weight:500; }
+.ticket-wait-msg {
+    text-align:center; font-size:13px; color:var(--text-muted);
+    margin-top:20px; padding:12px;
+    background:rgba(201,168,76,.06);
+    border-radius:var(--radius-md);
+    border:1px solid rgba(201,168,76,.1);
+}
+
+@@media (max-width:900px) {
+    .turno-layout { grid-template-columns: 1fr; }
+    .ticket-placeholder { min-height: 200px; }
+}
+</style>
+
+@section Scripts {
+<script>
+// ── Estado ───────────────────────────────────────────────────
+let turnoActivoId    = null;
+let turnoActivoEstado = null;
+
+// ── Paso 1: Buscar documento ──────────────────────────────────
+async function buscarDocumento() {
+    const doc = document.getElementById('documento').value.trim();
+    if (!doc) { showAlert('Ingresa tu número de documento.', 'error'); return; }
+
+    try {
+        // Llamamos al endpoint real del UsuarioController
+        const res  = await fetch('/Usuario/BuscarDocumento', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ documento: doc })
+        });
+        const data = await res.json();
+
+        if (!data.ok) {
+            showAlert(data.mensaje, 'error');
+            return;
+        }
+
+        if (data.activoExistente) {
+            // Ya tiene turno activo
+            turnoActivoId = data.turno.id;
+            turnoActivoEstado = data.turno.estado;
+            mostrarTicket(data.turno, data.nombre, doc);
+
+            // Si el turno está pendiente, mostrar botón de cancelar
+            if (data.puedeCancelar) {
+                mostrarBotonCancelar(data.turno.id);
+            }
+            return;
+        }
+
+        if (data.existe) {
+            // Usuario ya registrado pero sin turno activo → mostrar formulario de servicio/prioridad
+            document.getElementById('doc-readonly').value = doc;
+            document.getElementById('nombre').value = data.nombre;
+            document.getElementById('paso-buscar').style.display   = 'none';
+            document.getElementById('paso-registro').style.display = 'block';
+            // Cambiar texto del botón para indicar que es un usuario existente
+            document.getElementById('btn-registrar').textContent = '✦ Generar Turno';
+        } else {
+            // Usuario nuevo → mostrar paso 2
+            document.getElementById('doc-readonly').value = doc;
+            document.getElementById('paso-buscar').style.display   = 'none';
+            document.getElementById('paso-registro').style.display = 'block';
+        }
+    } catch (e) {
+        showAlert('Error de conexión.', 'error');
+    }
+}
+
+// ── Paso 2: Registrar y generar ───────────────────────────────
+async function registrarYGenerar() {
+    const doc      = document.getElementById('doc-readonly').value.trim();
+    const nombre   = document.getElementById('nombre').value.trim();
+    const servicio = document.getElementById('servicio').value;
+    const prioridad = document.querySelector('input[name="prioridad"]:checked').value;
+
+    if (!nombre || !servicio) {
+        showAlert('Completa todos los campos obligatorios.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-registrar');
+    btn.disabled = true;
+    btn.textContent = 'Generando...';
+
+    try {
+        const res  = await fetch('/Usuario/RegistrarYGenerar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ documento: doc, nombre, servicio, prioridad })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            mostrarTicket(data.turno, nombre, doc);
+        } else {
+            showAlert(data.mensaje, 'error');
+        }
+    } catch (e) {
+        showAlert('Error de conexión.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '✦ Registrar y Generar Turno';
+    }
+}
+
+// ── Mostrar ticket ────────────────────────────────────────────
+function mostrarTicket(turno, nombre, documento) {
+    document.getElementById('ticket-placeholder').style.display   = 'none';
+    document.getElementById('paso-buscar').style.display          = 'none';
+    document.getElementById('paso-registro').style.display        = 'none';
+
+    const badges = { 'Urgencia': 'badge-urgencia', 'VIP': 'badge-vip', 'Normal': 'badge-normal' };
+    const badgeEl = document.getElementById('ticket-badge');
+    badgeEl.className   = 'badge ' + (badges[turno.prioridad] || 'badge-normal');
+    badgeEl.textContent = turno.prioridad || 'Normal';
+
+    document.getElementById('ticket-numero').textContent  = turno.ticket;
+    document.getElementById('ticket-servicio').textContent = turno.servicio || '';
+    document.getElementById('ticket-nombre').textContent   = nombre;
+    document.getElementById('ticket-doc').textContent      = documento;
+    document.getElementById('ticket-hora').textContent     = new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+
+    document.getElementById('ticket-result').style.display = 'block';
+
+    // Impresión en segundo plano (no bloquea la UI)
+    setTimeout(() => imprimirTicket(turno.ticket, nombre, documento, turno.servicio, turno.prioridad), 100);
+}
+
+// ── Mostrar botón de cancelar turno ─────────────────────────
+function mostrarBotonCancelar(turnoId) {
+    const container = document.getElementById('ticket-result');
+    let btnCancelar = document.getElementById('btn-cancelar');
+
+    if (!btnCancelar) {
+        btnCancelar = document.createElement('button');
+        btnCancelar.id = 'btn-cancelar';
+        btnCancelar.className = 'btn btn-danger btn-full';
+        btnCancelar.style.marginTop = '8px';
+        btnCancelar.textContent = '✗ Cancelar Turno';
+        btnCancelar.onclick = () => cancelarTurno(turnoId);
+        container.querySelector('.ticket-card').appendChild(btnCancelar);
+    }
+}
+
+// ── Cancelar turno pendiente ─────────────────────────────────
+async function cancelarTurno(turnoId) {
+    if (!confirm('¿Cancelar este turno para solicitar uno nuevo?')) return;
+
+    try {
+        const res = await fetch('/Usuario/CancelarTurno', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ turnoId: turnoId })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            showAlert('Turno cancelado. Ahora puedes solicitar uno nuevo.', 'success');
+            resetForm();
+        } else {
+            showAlert(data.mensaje || 'Error al cancelar.', 'error');
+        }
+    } catch (e) {
+        showAlert('Error de conexión.', 'error');
+    }
+}
+
+// ── Imprimir ticket ──────────────────────────────────────────
+async function imprimirTicket(ticket, nombre, documento, servicio, prioridad) {
+    try {
+        const res = await fetch('/Turno/ImprimirTicket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ticket: ticket,
+                nombre: nombre,
+                documento: documento || '',
+                servicio: servicio || '',
+                prioridad: prioridad || 'Normal'
+            })
+        });
+        if (!res.ok) console.warn('Impresión no disponible');
+    } catch (e) {
+        console.warn('Impresión no disponible:', e);
+    }
+}
+
+// ── Reimprimir ticket actual ────────────────────────────────
+function reimprimirTicket() {
+    const ticket = document.getElementById('ticket-numero').textContent;
+    const nombre = document.getElementById('ticket-nombre').textContent;
+    const doc = document.getElementById('ticket-doc').textContent;
+    const servicio = document.getElementById('ticket-servicio').textContent;
+    // La prioridad no está en pantalla, pero se puede extraer del badge
+    const prioridad = document.getElementById('ticket-badge').textContent || 'Normal';
+    if (ticket && nombre) {
+        imprimirTicket(ticket, nombre, doc, servicio, prioridad);
+    }
+}
+
+function volverBuscar() {
+    document.getElementById('paso-registro').style.display = 'none';
+    document.getElementById('paso-buscar').style.display   = 'block';
+}
+
+function resetForm() {
+    document.getElementById('documento').value = '';
+    document.getElementById('nombre').value    = '';
+    document.getElementById('ticket-result').style.display      = 'none';
+    document.getElementById('ticket-placeholder').style.display = 'flex';
+    document.getElementById('alert-container').innerHTML        = '';
+    document.getElementById('paso-registro').style.display      = 'none';
+    document.getElementById('paso-buscar').style.display        = 'block';
+}
+
+function showAlert(msg, type) {
+    const el = document.getElementById('alert-container');
+    el.innerHTML = `<div class="alert alert-${type === 'error' ? 'error' : 'success'}">${msg}</div>`;
+    setTimeout(() => el.innerHTML = '', 4000);
+}
+
+// ── Manejo de parámetros URL ────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const ticket = params.get('ticket');
+    const nombre = params.get('nombre');
+    const doc = params.get('doc');
+
+    if (ticket && nombre) {
+        // Mostrar ticket y auto-imprimir
+        mostrarTicket({ ticket, servicio: '', prioridad: 'Normal' }, nombre, '');
+    } else if (doc) {
+        // Pre-llenar documento y buscar
+        document.getElementById('documento').value = doc;
+        buscarDocumento();
+    }
+});
+</script>
+}

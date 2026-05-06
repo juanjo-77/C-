@@ -1,0 +1,158 @@
+:root {
+  --bg-primary: #064e3b;
+  --bg-secondary: #0d7a5f;
+  --gold: #c9a84c;
+  --gold-light: #f0d78c;
+  --text: #f8fafc;
+  --panel: rgba(255,255,255,0.06);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Segoe UI, sans-serif;
+  background: linear-gradient(135deg, #064e3b, #0d7a5f);
+  color: var(--text);
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+  width: 280px;
+  background: rgba(0,0,0,.25);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid rgba(255,255,255,.08);
+  padding: 30px;
+}
+
+.logo-section h2 {
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+.logo-section span {
+  font-size: 13px;
+  opacity: .7;
+}
+
+.sidebar nav {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar nav a {
+  text-decoration: none;
+  color: white;
+  padding: 14px 18px;
+  border-radius: 16px;
+  transition: .3s;
+}
+
+.sidebar nav a:hover {
+  background: rgba(255,255,255,.08);
+  color: var(--gold-light);
+}
+
+/* MAIN */
+
+.main-content {
+  flex: 1;
+  padding: 30px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.content-area {
+  min-height: 80vh;
+}
+
+/* CARDS */
+
+.dashboard-card {
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 24px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  backdrop-filter: blur(12px);
+}
+
+/* BUTTONS */
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border: none;
+  color: #111;
+  font-weight: 700;
+  border-radius: 14px;
+  padding: 12px 24px;
+}
+
+/* TURNO ANIMATION */
+
+.turno-big {
+  font-size: 7rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: .9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* TABLES */
+
+.table-premium {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-premium tr {
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.table-premium td {
+  padding: 16px;
+}
+
+/* BADGES */
+
+.badge-priority {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-urgencia {
+  background: #dc2626;
+}
+
+.badge-vip {
+  background: #c9a84c;
+  color: black;
+}
+
+.badge-normal {
+  background: #94a3b8;
+  color: black;
+}

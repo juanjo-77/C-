@@ -1,0 +1,249 @@
+@{
+    ViewData["Title"] = "Crear Cuenta";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — MediTurno</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/mediturno.css" asp-append-version="true" />
+</head>
+<body class="auth-page">
+
+<div class="auth-container fade-in">
+    <div class="auth-brand">
+        <span class="auth-brand-icon">✦</span>
+        <span>MediTurno</span>
+    </div>
+
+    <div class="auth-header">
+        <p class="section-label">Únete al sistema</p>
+        <h1 class="auth-title">Crear <span>Cuenta</span></h1>
+        <p style="color:var(--text-muted); margin-top:8px; font-size:14px;">
+            Completa el formulario para registrarte
+        </p>
+    </div>
+
+    <form id="auth-form" class="auth-card card" onsubmit="return false;">
+
+        <div class="form-group">
+            <label class="form-label">Tipo de Cuenta</label>
+            <div class="role-selector">
+                <label class="role-option">
+                    <input type="radio" name="rol" value="paciente" checked />
+                    <span class="role-btn">
+                        <span class="role-btn-icon">👤</span>
+                        Paciente
+                    </span>
+                </label>
+                <label class="role-option">
+                    <input type="radio" name="rol" value="asesor" />
+                    <span class="role-btn">
+                        <span class="role-btn-icon">🩺</span>
+                        Asesor
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Nombre Completo</label>
+            <input type="text" class="form-control" placeholder="Tu nombre y apellidos" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" placeholder="Ej: correo@ejemplo.com" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <div class="input-wrapper">
+                <input type="password" id="password" class="form-control" placeholder="Mínimo 6 caracteres" />
+                <button type="button" class="toggle-pass" onclick="togglePassword()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Confirmar Contraseña</label>
+            <div class="input-wrapper">
+                <input type="password" id="confirmPassword" class="form-control" placeholder="Repite tu contraseña" />
+                <button type="button" class="toggle-pass" onclick="togglePasswordConfirm()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-gold btn-full btn-lg">
+            Crear Cuenta
+        </button>
+    </form>
+
+    <div class="auth-footer">
+        <p style="color:var(--text-muted); font-size:14px;">
+            ¿Ya tienes cuenta?
+            <a href="/Auth/Login" class="auth-link">Inicia sesión</a>
+        </p>
+        <a href="/" class="auth-link-secondary">← Volver al inicio</a>
+    </div>
+</div>
+
+<style>
+.auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(13,122,95,.2) 0%, transparent 70%),
+        var(--bg-deep);
+    padding: 32px 0;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 440px;
+    padding: 24px;
+    text-align: center;
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 40px;
+}
+
+.auth-brand-icon {
+    color: var(--gold);
+    font-size: 20px;
+    animation: spin 8s linear infinite;
+}
+
+.auth-header { margin-bottom: 32px; }
+
+.auth-title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.1;
+}
+
+.auth-title span { color: var(--gold-light); }
+
+.auth-card {
+    text-align: left;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-wrapper .form-control {
+    padding-right: 48px;
+}
+
+.toggle-pass {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.toggle-pass:hover { color: var(--gold-light); }
+
+.auth-footer {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-link {
+    color: var(--gold-light);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.auth-link:hover { text-decoration: underline; }
+
+.auth-link-secondary {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: var(--transition);
+}
+
+.auth-link-secondary:hover { color: var(--gold-light); }
+
+.role-selector {
+    display: flex;
+    gap: 8px;
+}
+
+.role-option input { display: none; }
+
+.role-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.04);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.role-btn-icon { font-size: 20px; }
+
+.role-option input:checked + .role-btn {
+    border-color: rgba(201,168,76,.4);
+    background: rgba(201,168,76,.1);
+    color: var(--gold-light);
+}
+
+.role-option input:checked + .role-btn .role-btn-icon { transform: scale(1.1); }
+</style>
+
+<script>
+function togglePassword() {
+    const input = document.getElementById('password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function togglePasswordConfirm() {
+    const input = document.getElementById('confirmPassword');
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+</script>
+
+</body>
+</html>

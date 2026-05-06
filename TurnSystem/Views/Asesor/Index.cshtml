@@ -1,0 +1,542 @@
+@{
+    ViewData["Title"] = "Panel del Asesor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page asesor-page">
+
+    <div class="asesor-header fade-in">
+        <div>
+            <p class="section-label">Panel de Gestión</p>
+            <h1 class="section-title">Panel del <span>Asesor</span></h1>
+        </div>
+        <div class="asesor-identity">
+            <div style="display:flex; gap:12px; align-items:center;">
+                <input type="text" id="asesor-nombre" class="form-control"
+                       placeholder="Tu nombre" style="width:220px;" />
+                <input type="text" id="asesor-ventanilla" class="form-control"
+                       placeholder="Ventanilla" style="width:120px;" />
+                <button class="btn btn-gold" onclick="guardarAsesor()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert-asesor"></div>
+
+    <div class="asesor-layout">
+
+        <!-- Columna principal -->
+        <div class="asesor-main">
+
+            <!-- Turno actual -->
+            <div class="card fade-in-delay-1" style="margin-bottom:20px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+                    <h2 class="card-title">Turno Actual</h2>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button id="btn-llamar" class="btn btn-gold" onclick="llamarSiguiente()">
+                            ▶ Llamar siguiente
+                        </button>
+                        <button id="btn-rellamar" class="btn btn-outline btn-sm"
+                                onclick="rellamar()" style="display:none;">
+                            🔄 Re-llamar
+                        </button>
+                    </div>
+                </div>
+
+                <div id="sin-turno" class="sin-turno-msg">
+                    <span style="font-size:36px; opacity:.3">🩺</span>
+                    <p>Presiona "Llamar siguiente" para iniciar la atención</p>
+                </div>
+
+                <div id="turno-activo" style="display:none;">
+                    <div class="turno-activo-grid">
+                        <div class="turno-activo-ticket">
+                            <span id="act-badge" class="badge" style="margin-bottom:12px;"></span>
+                            <div id="act-numero" class="ticket-number"
+                                 style="font-size:80px; line-height:1;"></div>
+                        </div>
+                        <div class="turno-activo-data">
+                            <div class="data-row">
+                                <span class="data-label">Paciente</span>
+                                <span id="act-nombre" class="data-value"></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Documento</span>
+                                <span id="act-doc" class="data-value"></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Servicio</span>
+                                <span id="act-servicio" class="data-value"></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Prioridad</span>
+                                <span id="act-prioridad" class="data-value"></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Llamado a las</span>
+                                <span id="act-hora" class="data-value"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div>
+                        <label class="form-label">Comentarios (opcional)</label>
+                        <textarea id="comentario" class="form-control" rows="3"
+                            placeholder="Observaciones, diagnóstico, indicaciones..."
+                            style="resize:vertical; min-height:80px;"></textarea>
+                        <div style="display:flex; gap:12px; margin-top:12px;">
+                            <button class="btn btn-success btn-lg" style="flex:1;"
+                                    onclick="finalizarAtencion()">
+                                ✓ Finalizar atención
+                            </button>
+                            <button class="btn btn-danger" onclick="noPresentado()">
+                                ✗ No se presentó
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cola pendiente -->
+            <div class="card fade-in-delay-2">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                    <h3 class="card-title">Cola pendiente</h3>
+                    <span id="count-pendiente" class="queue-count">0 turnos</span>
+                </div>
+                <div id="cola-pendiente" class="queue-list" style="max-height:320px; overflow-y:auto;">
+                    <p style="color:var(--text-dim); font-size:14px; padding:16px 0;">Sin turnos en espera</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial -->
+        <div class="asesor-historial fade-in-delay-3">
+            <div class="card" style="position:sticky; top:80px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                    <h3 class="card-title">Historial del día</h3>
+                    <span id="historial-count" class="queue-count">0 atendidos</span>
+                </div>
+                <div id="historial-list"
+                     style="max-height:calc(100vh - 240px); overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+                    <p style="color:var(--text-dim); font-size:14px; text-align:center; padding:24px 0;">
+                        Aquí aparecerán los turnos atendidos
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.asesor-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+}
+.asesor-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px; align-items: start;
+}
+.card-title {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 600; color: var(--text-primary);
+}
+.sin-turno-msg {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 12px;
+    padding: 48px; color: var(--text-dim);
+    font-size: 14px; text-align: center;
+}
+.turno-activo-grid {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 32px; align-items: start;
+}
+.turno-activo-ticket {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px;
+    background: radial-gradient(circle, rgba(201,168,76,.07), transparent);
+    border: 1px solid rgba(201,168,76,.15);
+    border-radius: var(--radius-lg); min-width: 160px;
+}
+.turno-activo-data { display: flex; flex-direction: column; gap: 14px; }
+.data-row { display: flex; flex-direction: column; gap: 2px; }
+.data-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); }
+.data-value { font-size: 16px; color: var(--text-primary); font-weight: 500; }
+.historial-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px; border-radius: var(--radius-md);
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.05); font-size: 13px;
+}
+.historial-ticket {
+    font-family: var(--font-display); font-size: 22px;
+    font-weight: 700; color: var(--gold-light); min-width: 64px;
+}
+.historial-info { flex: 1; }
+.historial-nombre { color: var(--text-primary); font-weight: 500; }
+.historial-meta { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+.historial-hora { color: var(--text-dim); font-size: 11px; white-space: nowrap; }
+
+@@media (max-width:900px) {
+    .asesor-layout { grid-template-columns: 1fr; }
+    .turno-activo-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+@section Scripts {
+<script>
+// ── Estado ────────────────────────────────────────────────────
+let turnoActualId   = null;
+let turnoActualData = null;
+let historialCount  = 0;
+
+// ── Asesor ────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+    const n = localStorage.getItem('asesor_nombre');
+    const v = localStorage.getItem('asesor_ventanilla');
+    if (n) document.getElementById('asesor-nombre').value     = n;
+    if (v) document.getElementById('asesor-ventanilla').value = v;
+});
+
+function guardarAsesor() {
+    const nombre = document.getElementById('asesor-nombre').value.trim();
+    const vent   = document.getElementById('asesor-ventanilla').value.trim();
+    if (!nombre) { showAlert('Ingresa tu nombre.', 'error'); return; }
+    localStorage.setItem('asesor_nombre', nombre);
+    localStorage.setItem('asesor_ventanilla', vent);
+    showAlert('Datos guardados. Puedes empezar a atender.', 'success');
+}
+
+function obtenerAsesor() {
+    return {
+        nombre:     document.getElementById('asesor-nombre').value.trim(),
+        ventanilla: document.getElementById('asesor-ventanilla').value.trim()
+    };
+}
+
+// ── Carga inicial única ───────────────────────────────────────
+// ObtenerTurnos devuelve keys en PascalCase: Pendiente, EnAtencion, Finalizado
+async function cargarTurnosInicial() {
+    try {
+        const asesor = obtenerAsesor();
+        let url = '/Asesor/ObtenerTurnos';
+        if (asesor.nombre) {
+            url += `?asesorNombre=${encodeURIComponent(asesor.nombre)}`;
+            if (asesor.ventanilla)
+                url += `&ventanilla=${encodeURIComponent(asesor.ventanilla)}`;
+        }
+
+        const res  = await fetch(url);
+        const data = await res.json();
+        if (!data.ok) return;
+
+        // ⚠️ Keys en PascalCase — así las devuelve el controller
+        renderCola(data.data.pendiente || []);
+        renderHistorial(data.data.finalizado || []);
+
+        const enAtencion = data.data.enAtencion || [];
+        if (enAtencion.length > 0) {
+            turnoActualId   = enAtencion[0].id;
+            turnoActualData = enAtencion[0];
+            mostrarTurnoActivo(enAtencion[0]);
+        }
+    } catch (e) {
+        console.error('Error cargando turnos:', e);
+    }
+}
+
+// ── Llamar siguiente ──────────────────────────────────────────
+async function llamarSiguiente() {
+    const asesor = obtenerAsesor();
+    if (!asesor.nombre) { showAlert('Ingresa tu nombre antes de llamar.', 'error'); return; }
+
+    const btn = document.getElementById('btn-llamar');
+    btn.disabled    = true;
+    btn.textContent = 'Llamando...';
+
+    try {
+        const res  = await fetch('/Asesor/LlamarSiguiente', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ asesorNombre: asesor.nombre, ventanilla: asesor.ventanilla })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            turnoActualId   = data.turno.id;
+            turnoActualData = data.turno;
+            mostrarTurnoActivo(data.turno);
+            // Quitar de cola visual directamente
+            quitarDeCola(data.turno.id);
+        } else {
+            showAlert(data.mensaje || 'No hay turnos pendientes.', 'error');
+        }
+    } catch (e) {
+        showAlert('Error de conexión.', 'error');
+    } finally {
+        btn.disabled    = false;
+        btn.textContent = '▶ Llamar siguiente';
+    }
+}
+
+// ── Finalizar ─────────────────────────────────────────────────
+async function finalizarAtencion() {
+    if (!turnoActualId) return;
+    const comentario = document.getElementById('comentario').value.trim();
+
+    try {
+        const res  = await fetch('/Asesor/Finalizar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ turnoId: turnoActualId, comentario })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            if (turnoActualData) agregarHistorial(turnoActualData);
+            limpiarTurnoActual();
+            showAlert('Atención finalizada.', 'success');
+        } else {
+            showAlert(data.mensaje || 'Error al finalizar.', 'error');
+        }
+    } catch (e) { showAlert('Error de conexión.', 'error'); }
+}
+
+// ── No presentado ─────────────────────────────────────────────
+async function noPresentado() {
+    if (!turnoActualId) return;
+    if (!confirm('¿Marcar como no presentado?')) return;
+
+    try {
+        const res  = await fetch('/Asesor/NoPresentado', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ turnoId: turnoActualId })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            limpiarTurnoActual();
+            showAlert('Turno marcado como no presentado.', 'success');
+        } else {
+            showAlert(data.mensaje || 'Error.', 'error');
+        }
+    } catch (e) { showAlert('Error.', 'error'); }
+}
+
+// ── Re-llamar via SignalR ─────────────────────────────────────
+function rellamar() {
+    if (!turnoActualData) return;
+    const asesor = obtenerAsesor();
+    connection.invoke("RellamarTurno", turnoActualData.id, asesor.nombre, asesor.ventanilla)
+        .catch(() => showAlert('No se pudo re-llamar.', 'error'));
+}
+
+// ── UI ────────────────────────────────────────────────────────
+function mostrarTurnoActivo(turno) {
+    document.getElementById('sin-turno').style.display    = 'none';
+    document.getElementById('turno-activo').style.display = 'block';
+    document.getElementById('btn-rellamar').style.display = 'inline-flex';
+
+    const badges  = { 'Urgencia':'badge-urgencia', 'VIP':'badge-vip', 'Normal':'badge-normal' };
+    const badgeEl = document.getElementById('act-badge');
+    badgeEl.className   = 'badge ' + (badges[turno.prioridad] || 'badge-normal');
+    badgeEl.textContent = turno.prioridad || 'Normal';
+
+    document.getElementById('act-numero').textContent    = turno.ticket;
+    document.getElementById('act-nombre').textContent    = turno.paciente  || '—';
+    document.getElementById('act-doc').textContent       = turno.documento || '—';
+    document.getElementById('act-servicio').textContent  = turno.servicio  || '—';
+    document.getElementById('act-prioridad').textContent = turno.prioridad || '—';
+    document.getElementById('act-hora').textContent      =
+        new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+    document.getElementById('comentario').value = '';
+}
+
+function limpiarTurnoActual() {
+    turnoActualId = null; turnoActualData = null;
+    document.getElementById('sin-turno').style.display    = 'flex';
+    document.getElementById('turno-activo').style.display = 'none';
+    document.getElementById('btn-rellamar').style.display = 'none';
+}
+
+function renderCola(cola) {
+    const el    = document.getElementById('cola-pendiente');
+    const count = document.getElementById('count-pendiente');
+    cola = cola || [];
+    count.textContent = cola.length + (cola.length === 1 ? ' turno' : ' turnos');
+
+    if (cola.length === 0) {
+        el.innerHTML = '<p style="color:var(--text-dim);font-size:14px;padding:16px 0;">Sin turnos en espera</p>';
+        return;
+    }
+
+    const badges = { 'Urgencia':'badge-urgencia', 'VIP':'badge-vip', 'Normal':'badge-normal' };
+    el.innerHTML = cola.map(t => `
+        <div class="queue-item" data-id="${t.id}">
+            <div class="queue-ticket">${t.ticket}</div>
+            <div class="queue-info">
+                <div class="queue-name">${t.paciente || 'Paciente'}</div>
+                <div class="queue-service">${t.servicio || ''}</div>
+            </div>
+            <span class="badge ${badges[t.prioridad] || 'badge-normal'}">${t.prioridad || ''}</span>
+        </div>
+    `).join('');
+}
+
+function quitarDeCola(id) {
+    const item = document.querySelector(`#cola-pendiente [data-id="${id}"]`);
+    if (item) item.remove();
+    const items = document.querySelectorAll('#cola-pendiente .queue-item');
+    const count = document.getElementById('count-pendiente');
+    count.textContent = items.length + (items.length === 1 ? ' turno' : ' turnos');
+    if (items.length === 0)
+        document.getElementById('cola-pendiente').innerHTML =
+            '<p style="color:var(--text-dim);font-size:14px;padding:16px 0;">Sin turnos en espera</p>';
+}
+
+function agregarACola(turno) {
+    // Evitar duplicados
+    if (document.querySelector(`#cola-pendiente [data-id="${turno.id}"]`)) return;
+
+    const el = document.getElementById('cola-pendiente');
+    // Si solo tiene el párrafo vacío, limpiar
+    if (el.querySelector('p')) el.innerHTML = '';
+
+    const badges = { 'Urgencia':'badge-urgencia', 'VIP':'badge-vip', 'Normal':'badge-normal' };
+    const item   = document.createElement('div');
+    item.className   = 'queue-item fade-in';
+    item.dataset.id  = turno.id;
+    item.innerHTML   = `
+        <div class="queue-ticket">${turno.ticket}</div>
+        <div class="queue-info">
+            <div class="queue-name">${turno.paciente || 'Paciente'}</div>
+            <div class="queue-service">${turno.servicio || ''}</div>
+        </div>
+        <span class="badge ${badges[turno.prioridad] || 'badge-normal'}">${turno.prioridad || ''}</span>
+    `;
+    el.appendChild(item);
+
+    const count = document.getElementById('count-pendiente');
+    const total = document.querySelectorAll('#cola-pendiente .queue-item').length;
+    count.textContent = total + (total === 1 ? ' turno' : ' turnos');
+}
+
+function renderHistorial(finalizados) {
+    const el    = document.getElementById('historial-list');
+    const count = document.getElementById('historial-count');
+    finalizados = finalizados || [];
+    historialCount = finalizados.length;
+    count.textContent = historialCount + ' atendidos';
+
+    if (finalizados.length === 0) {
+        el.innerHTML = '<p style="color:var(--text-dim);font-size:14px;text-align:center;padding:24px 0;">Aquí aparecerán los turnos atendidos</p>';
+        return;
+    }
+
+    el.innerHTML = finalizados.map(t => `
+        <div class="historial-item">
+            <div class="historial-ticket">${t.ticket}</div>
+            <div class="historial-info">
+                <div class="historial-nombre">${t.paciente || '—'}</div>
+                <div class="historial-meta">${t.servicio || ''} · ${t.prioridad || ''}</div>
+            </div>
+            <div class="historial-hora">${t.horaFin || ''}</div>
+        </div>
+    `).join('');
+}
+
+function agregarHistorial(turno) {
+    historialCount++;
+    document.getElementById('historial-count').textContent = historialCount + ' atendidos';
+
+    const el   = document.getElementById('historial-list');
+    const item = document.createElement('div');
+    item.className = 'historial-item fade-in';
+    item.innerHTML = `
+        <div class="historial-ticket">${turno.ticket}</div>
+        <div class="historial-info">
+            <div class="historial-nombre">${turno.paciente || '—'}</div>
+            <div class="historial-meta">${turno.servicio || ''} · ${turno.prioridad || ''}</div>
+        </div>
+        <div class="historial-hora">${new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' })}</div>
+    `;
+    if (el.querySelector('p')) el.innerHTML = '';
+    el.insertBefore(item, el.firstChild);
+}
+
+function showAlert(msg, type) {
+    const el = document.getElementById('alert-asesor');
+    el.innerHTML = `<div class="alert alert-${type === 'error' ? 'error' : 'success'}">${msg}</div>`;
+    setTimeout(() => el.innerHTML = '', 4000);
+}
+
+// ── SignalR — sin polling, eventos puros ──────────────────────
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/turnoHub")
+    .withAutomaticReconnect([0, 2000, 5000, 10000])
+    .build();
+
+// Cola actualizada desde hub
+connection.on("ColaActualizada", (cola) => {
+    renderCola(cola || []);
+});
+
+connection.on("TurnoAgregado", (turno) => {
+    agregarACola(turno);
+});
+
+// Turno llamado por este u otro asesor → quitar de cola
+connection.on("TurnoLlamado", (turno) => {
+    quitarDeCola(turno.id);
+    // Si es el turno de ESTE asesor, mostrarlo
+    const asesor = obtenerAsesor();
+    if (turno.asesor === asesor.nombre) {
+        turnoActualId   = turno.id;
+        turnoActualData = turno;
+        mostrarTurnoActivo(turno);
+    }
+});
+
+// Turno finalizado por este asesor
+connection.on("TurnoFinalizado", (turno) => {
+    if (turnoActualData && turnoActualData.id === turno.id) {
+        agregarHistorial(turno);
+        limpiarTurnoActual();
+    }
+});
+
+// Turno no presentado
+connection.on("TurnoNoPresentado", (turno) => {
+    if (turnoActualData && turnoActualData.id === turno.id) {
+        limpiarTurnoActual();
+    }
+    quitarDeCola(turno.id);
+});
+
+connection.onreconnected(async () => {
+    const asesor = obtenerAsesor();
+    await connection.invoke("UnirseAPanel", asesor.nombre, asesor.ventanilla).catch(console.error);
+    await cargarTurnosInicial();
+});
+
+async function iniciarConexion() {
+    try {
+        await connection.start();
+        const asesor = obtenerAsesor();
+        await connection.invoke("UnirseAPanel", asesor.nombre, asesor.ventanilla);
+        // Carga inicial única — solo al arrancar
+        await cargarTurnosInicial();
+    } catch (e) {
+        console.error('SignalR error:', e);
+        setTimeout(iniciarConexion, 3000);
+    }
+}
+
+iniciarConexion();
+// ❌ Sin setInterval — SignalR maneja todo
+</script>
+}

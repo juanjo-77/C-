@@ -1,0 +1,230 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content page">
+        <div class="hero-text fade-in">
+            <p class="section-label">Sistema Hospitalario de Turnos</p>
+            <h1 class="hero-title">Medi<span>Turno</span></h1>
+            <p class="hero-subtitle">Atención organizada, tiempos respetados,<br>experiencia digna para cada paciente.</p>
+            <div class="hero-actions">
+                <a href="/Turno" class="btn btn-gold btn-lg">Solicitar Turno</a>
+                <a href="/Sala" class="btn btn-outline btn-lg">Sala de Espera</a>
+            </div>
+        </div>
+        <div class="hero-badge fade-in-delay-2">
+            <div class="hero-badge-inner">
+                <span class="hero-badge-icon">✦</span>
+                <span class="hero-badge-text">En línea</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="modules page">
+    <p class="section-label fade-in">Módulos del sistema</p>
+    <h2 class="section-title fade-in-delay-1">Todo en un <span>solo lugar</span></h2>
+    <div class="divider"></div>
+
+    <div class="modules-grid">
+        <a href="/Turno" class="module-card fade-in-delay-1">
+            <div class="module-icon">🎫</div>
+            <h3 class="module-title">Registro de Turno</h3>
+            <p class="module-desc">Genera tu ticket con prioridad automática según el tipo de atención requerida.</p>
+            <span class="module-link">Ir al módulo →</span>
+        </a>
+
+        <a href="/Sala" class="module-card fade-in-delay-2">
+            <div class="module-icon">📺</div>
+            <h3 class="module-title">Sala de Espera</h3>
+            <p class="module-desc">Pantalla en tiempo real con anuncio de turnos por voz y cola actualizada al instante.</p>
+            <span class="module-link">Ver pantalla →</span>
+        </a>
+
+        <a href="/Asesor" class="module-card fade-in-delay-3">
+            <div class="module-icon">🩺</div>
+            <h3 class="module-title">Panel del Asesor</h3>
+            <p class="module-desc">Controla el flujo de atención, llama turnos por prioridad y registra comentarios.</p>
+            <span class="module-link">Ir al panel →</span>
+        </a>
+
+        <a href="/Estadisticas" class="module-card fade-in-delay-4">
+            <div class="module-icon">📊</div>
+            <h3 class="module-title">Estadísticas</h3>
+            <p class="module-desc">KPIs del día, tiempos promedio de atención y rendimiento por asesor en tiempo real.</p>
+            <span class="module-link">Ver estadísticas →</span>
+        </a>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+async function buscarTurnoInicio() {
+    const doc = document.getElementById('doc-inicio').value.trim();
+    const alertBox = document.getElementById('alert-inicio');
+
+    if (!doc) {
+        alertBox.innerHTML = '<div class="alert alert-error">Ingresa tu número de documento.</div>';
+        return;
+    }
+
+    try {
+        const res  = await fetch('/Usuario/BuscarDocumento', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ documento: doc })
+        });
+        const data = await res.json();
+
+        if (!data.ok) {
+            alertBox.innerHTML = '<div class="alert alert-error">' + data.mensaje + '</div>';
+            return;
+        }
+
+        if (data.activoExistente) {
+            alertBox.innerHTML = '<div class="alert alert-error">Ya tienes un turno activo: ' + data.turno.ticket + '</div>';
+            return;
+        }
+
+        if (data.existe) {
+            // Usuario ya registrado → redirigir a Turno para ver su ticket
+            window.location.href = '/Turno?ticket=' + data.turno.ticket + '&nombre=' + encodeURIComponent(data.nombre);
+        } else {
+            // Usuario nuevo → redirigir al formulario completo de Turno
+            window.location.href = '/Turno?doc=' + encodeURIComponent(doc);
+        }
+    } catch (e) {
+        alertBox.innerHTML = '<div class="alert alert-error">Error de conexión.</div>';
+    }
+}
+</script>
+}
+
+<style>
+/* ── HERO ── */
+.hero {
+    position: relative;
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(13,122,95,.35) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(201,168,76,.08) 0%, transparent 60%),
+        linear-gradient(160deg, var(--bg-deep) 0%, var(--bg-dark) 100%);
+}
+
+.hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 1px 1px, rgba(201,168,76,.06) 1px, transparent 0);
+    background-size: 40px 40px;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+}
+
+.hero-text { max-width: 580px; }
+
+.hero-title {
+    font-family: var(--font-display);
+    font-size: 88px;
+    font-weight: 700;
+    line-height: .95;
+    color: var(--text-primary);
+    margin: 12px 0 20px;
+    letter-spacing: -2px;
+}
+
+.hero-title span { color: var(--gold-light); }
+
+.hero-subtitle {
+    font-size: 18px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 40px;
+}
+
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+.hero-badge {
+    flex-shrink: 0;
+}
+
+.hero-badge-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,.25);
+    background: radial-gradient(circle, rgba(201,168,76,.08), transparent);
+    animation: pulse-gold 3s ease-in-out infinite;
+    gap: 8px;
+}
+
+.hero-badge-icon { font-size: 40px; color: var(--gold); }
+.hero-badge-text { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); }
+
+/* ── MODULES ── */
+.modules { padding-top: 80px; padding-bottom: 80px; }
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.module-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(201,168,76,.1);
+    border-radius: var(--radius-lg);
+    padding: 32px 24px;
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.module-card:hover {
+    border-color: rgba(201,168,76,.3);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(3,45,30,.6), 0 0 0 1px rgba(201,168,76,.15);
+}
+
+.module-icon { font-size: 36px; }
+.module-title { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary); }
+.module-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; flex: 1; }
+.module-link { font-size: 13px; color: var(--gold); font-weight: 500; }
+
+@@media (max-width: 900px) {
+    .modules-grid { grid-template-columns: 1fr 1fr; }
+    .hero-title { font-size: 56px; }
+    .hero-badge { display: none; }
+}
+
+@@media (max-width: 600px) {
+    .modules-grid { grid-template-columns: 1fr; }
+}
+</style>

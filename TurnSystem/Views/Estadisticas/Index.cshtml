@@ -1,0 +1,274 @@
+﻿@{
+    ViewData["Title"] = "Estadísticas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page">
+    <div class="fade-in" style="margin-bottom:40px;">
+        <p class="section-label">Tiempo real</p>
+        <h1 class="section-title">Estadísticas <span>del Día</span></h1>
+        <p style="color:var(--text-muted); margin-top:8px; font-size:14px;">
+            Actualización automática · <span id="ultima-actualizacion">—</span>
+        </p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid-4 fade-in-delay-1" style="margin-bottom:32px;">
+        <div class="kpi-card">
+            <div id="kpi-total" class="kpi-value">0</div>
+            <div class="kpi-label">Total Turnos</div>
+        </div>
+        <div class="kpi-card">
+            <div id="kpi-finalizados" class="kpi-value" style="color:#6ee7b7;">0</div>
+            <div class="kpi-label">Finalizados</div>
+        </div>
+        <div class="kpi-card">
+            <div id="kpi-tiempo" class="kpi-value" style="color:var(--gold);">—</div>
+            <div class="kpi-label">Tiempo Prom. (min)</div>
+        </div>
+        <div class="kpi-card">
+            <div id="kpi-asesores" class="kpi-value" style="color:#a78bfa;">0</div>
+            <div class="kpi-label">Asesores Activos</div>
+        </div>
+    </div>
+
+    <div class="grid-2 fade-in-delay-2">
+        <!-- Por asesor -->
+        <div class="card">
+            <h3 class="chart-title">Atendidos por Asesor</h3>
+            <div id="chart-asesores" class="chart-container">
+                <p class="chart-empty">Sin datos aún</p>
+            </div>
+        </div>
+
+        <!-- Por servicio -->
+        <div class="card">
+            <h3 class="chart-title">Distribución por Servicio</h3>
+            <div id="chart-servicios" class="chart-container">
+                <p class="chart-empty">Sin datos aún</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalle de turnos de hoy -->
+    <div class="card fade-in-delay-3" style="margin-top:24px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+            <h3 class="chart-title">Turnos de hoy</h3>
+            <div style="display:flex; gap:8px;">
+                <span class="badge badge-urgencia">● Urgencia</span>
+                <span class="badge badge-vip">● VIP</span>
+                <span class="badge badge-normal">● Normal</span>
+            </div>
+        </div>
+        <div id="tabla-turnos" style="overflow-x:auto;">
+            <p class="chart-empty">Cargando...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.chart-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+}
+
+.chart-container { display: flex; flex-direction: column; gap: 12px; min-height: 120px; }
+.chart-empty { color: var(--text-dim); font-size: 14px; text-align: center; padding: 32px 0; }
+
+/* Barra horizontal */
+.bar-row { display: flex; flex-direction: column; gap: 4px; }
+.bar-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.bar-track {
+    height: 10px;
+    background: rgba(255,255,255,.06);
+    border-radius: 100px;
+    overflow: hidden;
+}
+.bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+
+/* Tabla turnos */
+.turnos-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.turnos-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.turnos-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    color: var(--text-muted);
+}
+.turnos-table tr:hover td { background: rgba(255,255,255,.02); }
+.turnos-table td:first-child {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--gold-light);
+    font-weight: 700;
+}
+
+.estado-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.estado-finalizado { background: rgba(110,231,183,.12); color: #6ee7b7; }
+.estado-en-atencion { background: rgba(201,168,76,.12); color: var(--gold-light); }
+.estado-pendiente { background: rgba(148,184,173,.1); color: var(--text-muted); }
+.estado-no-presentado { background: rgba(239,68,68,.1); color: #fca5a5; }
+</style>
+
+@section Scripts {
+<script>
+// ── Renderizado de gráficas de barras ─────────────────────────
+function renderBarras(containerId, datos, colorFn) {
+    const el = document.getElementById(containerId);
+    if (!datos || datos.length === 0) {
+        el.innerHTML = '<p class="chart-empty">Sin datos aún</p>';
+        return;
+    }
+
+    const max = Math.max(...datos.map(d => d.valor));
+    el.innerHTML = datos.map(d => `
+        <div class="bar-row">
+            <div class="bar-label-row">
+                <span>${d.label}</span>
+                <span style="font-weight:600; color:var(--text-primary);">${d.valor}</span>
+            </div>
+            <div class="bar-track">
+                <div class="bar-fill" style="width:${max > 0 ? (d.valor/max*100) : 0}%; background:${colorFn(d)};"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ── Tabla de turnos ───────────────────────────────────────────
+function renderTabla(turnos) {
+    const el = document.getElementById('tabla-turnos');
+    if (!turnos || turnos.length === 0) {
+        el.innerHTML = '<p class="chart-empty">No hay turnos hoy</p>';
+        return;
+    }
+
+    const estadoClass = {
+        'Finalizado':    'estado-finalizado',
+        'EnAtencion':    'estado-en-atencion',
+        'Pendiente':     'estado-pendiente',
+        'NoPresentado':  'estado-no-presentado',
+    };
+    const estadoLabel = {
+        'Finalizado': 'Finalizado', 'EnAtencion': 'En atención',
+        'Pendiente': 'Pendiente', 'NoPresentado': 'No presentado'
+    };
+
+    const badges = { 'Urgencia': 'badge-urgencia', 'VIP': 'badge-vip', 'Normal': 'badge-normal' };
+
+    el.innerHTML = `
+        <table class="turnos-table">
+            <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>Paciente</th>
+                    <th>Servicio</th>
+                    <th>Prioridad</th>
+                    <th>Asesor</th>
+                    <th>Estado</th>
+                    <th>Hora</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${turnos.map(t => `
+                <tr>
+                    <td>${t.ticket}</td>
+                    <td style="color:var(--text-primary);">${t.paciente || '—'}</td>
+                    <td>${t.servicio || '—'}</td>
+                    <td><span class="badge ${badges[t.prioridad] || 'badge-normal'}">${t.prioridad || '—'}</span></td>
+                    <td>${t.asesor || '—'}</td>
+                    <td><span class="estado-badge ${estadoClass[t.estado] || ''}">${estadoLabel[t.estado] || t.estado}</span></td>
+                    <td>${t.hora || '—'}</td>
+                </tr>`).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+// ── Cargar estadísticas ───────────────────────────────────────
+async function cargarEstadisticas() {
+    try {
+        const res  = await fetch('/Estadisticas/Datos');
+        const data = await res.json();
+
+        document.getElementById('kpi-total').textContent       = data.totalTurnos ?? 0;
+        document.getElementById('kpi-finalizados').textContent = data.finalizados ?? 0;
+        document.getElementById('kpi-tiempo').textContent      = data.tiempoPromedio != null ? data.tiempoPromedio.toFixed(1) : '—';
+        document.getElementById('kpi-asesores').textContent    = data.asesoresActivos ?? 0;
+
+        renderBarras('chart-asesores', data.porAsesor || [],
+            (d, i) => 'linear-gradient(90deg, var(--bg-mid), var(--gold))');
+
+        const coloresServicio = [
+            'var(--gold)', '#6ee7b7', '#a78bfa', '#f87171',
+            '#60a5fa', '#34d399', '#fbbf24', '#e879f9'
+        ];
+        const porServicio = data.porServicio || [];
+        renderBarras('chart-servicios', porServicio,
+            (d, i) => coloresServicio[i % coloresServicio.length]);
+
+        renderTabla(data.turnos || []);
+
+        document.getElementById('ultima-actualizacion').textContent =
+            'Actualizado ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    } catch (e) {
+        console.error('Error cargando estadísticas:', e);
+    }
+}
+
+// Cargar al inicio y cada 30 segundos
+cargarEstadisticas();
+setInterval(cargarEstadisticas, 30000);
+
+// ── SignalR — actualizar al recibir eventos ───────────────────
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/turnoHub")
+    .withAutomaticReconnect()
+    .build();
+
+connection.on("TurnoFinalizado", () => cargarEstadisticas());
+connection.on("TurnoLlamado",   () => cargarEstadisticas());
+connection.on("TurnoAgregado",  () => cargarEstadisticas());
+
+async function iniciarConexion() {
+    try {
+        await connection.start();
+    } catch (e) {
+        setTimeout(iniciarConexion, 3000);
+    }
+}
+
+iniciarConexion();
+</script>
+}

@@ -1,0 +1,422 @@
+﻿@{
+    ViewData["Title"] = "Sala de Espera";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="sala-page">
+
+    <!-- Turno en atención -->
+    <div class="sala-main">
+        <div class="sala-header">
+            <div>
+                <p class="section-label">En este momento</p>
+                <h2 class="sala-now-title">Turno en <span>Atención</span></h2>
+            </div>
+            <div class="sala-controls">
+                <span id="reloj" class="clock"></span>
+                <span id="signalr-status" class="signalr-status">● Conectando...</span>
+            </div>
+        </div>
+
+        <div id="turno-actual" class="turno-actual-card pulse">
+            <div id="actual-empty" class="actual-empty">
+                <span style="font-size:48px; opacity:.3">⏳</span>
+                <p>Sin turno en atención</p>
+            </div>
+            <div id="actual-info" style="display:none; text-align:center;">
+                <span id="actual-badge" class="badge" style="margin-bottom:16px;"></span>
+                <div id="actual-ticket" class="ticket-number" style="font-size:120px; line-height:1;"></div>
+                <p id="actual-nombre" style="font-size:20px; color:var(--text-muted); margin-top:8px;"></p>
+                <p id="actual-servicio" style="font-size:15px; color:var(--text-dim); margin-top:4px;"></p>
+                <p id="actual-asesor" style="font-size:13px; color:var(--gold); margin-top:12px;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cola de espera -->
+    <div class="sala-queue">
+        <div class="queue-header">
+            <h3 class="queue-title">Cola de espera</h3>
+            <span id="queue-count" class="queue-count">0 turnos</span>
+        </div>
+
+        <div id="queue-legend" class="queue-legend">
+            <span class="badge badge-urgencia">● Urgencia</span>
+            <span class="badge badge-vip">● VIP</span>
+            <span class="badge badge-normal">● Normal</span>
+        </div>
+
+        <div id="queue-list" class="queue-list">
+            <div class="queue-empty" id="queue-empty">
+                <p>No hay turnos en espera</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sala-page {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 0;
+    height: calc(100vh - 64px);
+    overflow: hidden;
+}
+
+.sala-main {
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    background: linear-gradient(160deg, var(--bg-deep), var(--bg-dark));
+    border-right: 1px solid rgba(201,168,76,.1);
+    overflow-y: auto;
+}
+
+.sala-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.sala-now-title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sala-now-title span { color: var(--gold-light); }
+
+.sala-controls { display: flex; align-items: center; gap: 16px; }
+
+.signalr-status {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+}
+.signalr-status.connected { color: #6ee7b7; }
+.signalr-status.error     { color: #fca5a5; }
+
+.turno-actual-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, rgba(201,168,76,.07), transparent 70%),
+                var(--bg-card);
+    border: 1px solid rgba(201,168,76,.2);
+    border-radius: var(--radius-xl);
+    min-height: 400px;
+}
+
+.actual-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    color: var(--text-dim);
+    font-size: 15px;
+}
+
+.sala-queue {
+    background: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.queue-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid rgba(201,168,76,.1);
+}
+
+.queue-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.queue-count {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    background: rgba(255,255,255,.05);
+    padding: 4px 12px;
+    border-radius: 100px;
+}
+
+.queue-legend {
+    display: flex;
+    gap: 8px;
+    padding: 12px 24px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+}
+
+.queue-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.queue-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-dim);
+    font-size: 14px;
+}
+
+@@media (max-width: 900px) {
+    .sala-page { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+    .sala-main { min-height: 50vh; }
+    .turno-actual-card { min-height: 300px; }
+}
+</style>
+
+@section Scripts {
+<script>
+// ── Audio ─────────────────────────────────────────────────────
+let audioCtx = null;
+
+function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+}
+
+// Desbloquear AudioContext con el primer click del usuario
+document.addEventListener('click', () => {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+}, { once: true });
+
+// Chime 3 notas: 880Hz → 1175Hz → 1568Hz
+function playChime() {
+    try {
+        const ctx   = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+        const notas = [880, 1175, 1568];
+        notas.forEach((freq, i) => {
+            const osc  = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            gain.gain.setValueAtTime(0,    ctx.currentTime + i * 0.22);
+            gain.gain.linearRampToValueAtTime(0.4,   ctx.currentTime + i * 0.22 + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.22 + 0.45);
+            osc.start(ctx.currentTime + i * 0.22);
+            osc.stop(ctx.currentTime  + i * 0.22 + 0.5);
+        });
+    } catch(e) { console.warn('Audio error:', e); }
+}
+
+// TTS después del chime
+function anunciarTurno(ticket, servicio, ventanilla) {
+    if (!window.speechSynthesis) return;
+    setTimeout(() => {
+        window.speechSynthesis.cancel();
+        const ticketLeido = ticket.split('').join(' ');
+        const vent  = ventanilla ? `, ventanilla ${ventanilla}` : '';
+        const texto = `Turno ${ticketLeido}, por favor dirigirse a ${servicio}${vent}`;
+        const utt   = new SpeechSynthesisUtterance(texto);
+        utt.lang    = 'es-CO';
+        utt.rate    = 0.88;
+        utt.pitch   = 1.05;
+        utt.volume  = 1;
+        window.speechSynthesis.speak(utt);
+    }, 900);
+}
+
+// ── Reloj ─────────────────────────────────────────────────────
+function actualizarReloj() {
+    document.getElementById('reloj').textContent =
+        new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+setInterval(actualizarReloj, 1000);
+actualizarReloj();
+
+// ── Turno en atención ─────────────────────────────────────────
+function mostrarTurnoActual(turno) {
+    const emptyEl = document.getElementById('actual-empty');
+    const infoEl  = document.getElementById('actual-info');
+
+    if (!turno) {
+        emptyEl.style.display = 'flex';
+        infoEl.style.display  = 'none';
+        return;
+    }
+
+    emptyEl.style.display = 'none';
+    infoEl.style.display  = 'block';
+
+    const badges  = { 'Urgencia':'badge-urgencia', 'VIP':'badge-vip', 'Normal':'badge-normal' };
+    const badgeEl = document.getElementById('actual-badge');
+    badgeEl.className   = 'badge ' + (badges[turno.prioridad] || 'badge-normal');
+    badgeEl.textContent = turno.prioridad || 'Normal';
+
+    document.getElementById('actual-ticket').textContent   = turno.ticket;
+    document.getElementById('actual-nombre').textContent   = turno.paciente  || '';
+    document.getElementById('actual-servicio').textContent = turno.servicio  || '';
+    document.getElementById('actual-asesor').textContent   = turno.ventanilla
+        ? 'Ventanilla ' + turno.ventanilla : '';
+}
+
+// ── Cola ──────────────────────────────────────────────────────
+function renderCola(cola) {
+    const list    = document.getElementById('queue-list');
+    const emptyEl = document.getElementById('queue-empty');
+    const countEl = document.getElementById('queue-count');
+
+    cola = cola || [];
+    countEl.textContent = cola.length + (cola.length === 1 ? ' turno' : ' turnos');
+
+    if (cola.length === 0) {
+        list.innerHTML = '';
+        list.appendChild(emptyEl);
+        emptyEl.style.display = 'flex';
+        return;
+    }
+
+    emptyEl.style.display = 'none';
+    list.innerHTML = '';
+
+    const badges = { 'Urgencia':'badge-urgencia', 'VIP':'badge-vip', 'Normal':'badge-normal' };
+    cola.forEach((t, i) => {
+        const item = document.createElement('div');
+        item.className        = 'queue-item';
+        item.dataset.id       = t.id;
+        item.style.animationDelay = (i * 0.04) + 's';
+        item.innerHTML = `
+            <div class="queue-ticket">${t.ticket}</div>
+            <div class="queue-info">
+                <div class="queue-name">${t.paciente || 'Paciente'}</div>
+                <div class="queue-service">${t.servicio || ''}</div>
+            </div>
+            <span class="badge ${badges[t.prioridad] || 'badge-normal'}">${t.prioridad || ''}</span>
+        `;
+        list.appendChild(item);
+    });
+}
+
+// ── Estado del indicador ──────────────────────────────────────
+function setStatus(estado) {
+    const el = document.getElementById('signalr-status');
+    if (estado === 'connected') { el.textContent = '● En línea'; el.className = 'signalr-status connected'; }
+    else if (estado === 'error') { el.textContent = '● Sin conexión'; el.className = 'signalr-status error'; }
+    else { el.textContent = '● Conectando...'; el.className = 'signalr-status'; }
+}
+
+// ── SignalR — única fuente de verdad, sin polling ─────────────
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/turnoHub")
+    .withAutomaticReconnect([0, 2000, 5000, 10000])
+    .build();
+
+// Estado inicial al conectarse
+connection.on("EstadoInicial", (cola, enAtencion) => {
+    renderCola(cola || []);
+    mostrarTurnoActual(enAtencion || null);
+});
+
+// Cola actualizada (respuesta a ObtenerCola)
+connection.on("ColaActualizada", (cola) => {
+    renderCola(cola || []);
+});
+
+connection.on("TurnoAgregado", (turno) => {
+    console.log("📦 TurnoAgregado llegó:", turno);
+    if (document.querySelector(`#queue-list [data-id="${turno.id}"]`)) return;
+
+    const list    = document.getElementById('queue-list');
+    const countEl = document.getElementById('queue-count');
+
+    // Limpiar mensaje de "no hay turnos" si existe
+    const msgVacio = list.querySelector('p');
+    if (msgVacio) msgVacio.remove();
+
+    const badges = { 'Urgencia':'badge-urgencia', 'VIP':'badge-vip', 'Normal':'badge-normal' };
+    const item   = document.createElement('div');
+    item.className  = 'queue-item fade-in';
+    item.dataset.id = turno.id;
+    item.innerHTML  = `
+        <div class="queue-ticket">${turno.ticket}</div>
+        <div class="queue-info">
+            <div class="queue-name">${turno.paciente || 'Paciente'}</div>
+            <div class="queue-service">${turno.servicio || ''}</div>
+        </div>
+        <span class="badge ${badges[turno.prioridad] || 'badge-normal'}">${turno.prioridad || ''}</span>
+    `;
+    list.appendChild(item);
+
+    const total = document.querySelectorAll('#queue-list .queue-item').length;
+    countEl.textContent = total + (total === 1 ? ' turno' : ' turnos');
+});
+
+// Turno llamado por el asesor → sonido + TTS + actualizar cola
+connection.on("TurnoLlamado", (turno) => {
+    mostrarTurnoActual(turno);
+    // Quitar de la lista visual
+    const item = document.querySelector(`#queue-list [data-id="${turno.id}"]`);
+    if (item) item.remove();
+    // Recalcular contador
+    const items = document.querySelectorAll('#queue-list .queue-item');
+    document.getElementById('queue-count').textContent =
+        items.length + (items.length === 1 ? ' turno' : ' turnos');
+    if (items.length === 0) {
+        const list = document.getElementById('queue-list');
+        const emptyEl = document.getElementById('queue-empty');
+        list.innerHTML = '';
+        list.appendChild(emptyEl);
+        emptyEl.style.display = 'flex';
+    }
+    // Sonido y voz
+    playChime();
+    anunciarTurno(turno.ticket, turno.servicio, turno.ventanilla);
+});
+
+// Turno finalizado → limpiar turno en atención
+connection.on("TurnoFinalizado", () => {
+    mostrarTurnoActual(null);
+});
+
+// Turno no presentado → limpiar
+connection.on("TurnoNoPresentado", () => {
+    mostrarTurnoActual(null);
+});
+
+// Reconexión
+connection.onreconnecting(() => setStatus('connecting'));
+connection.onreconnected(async () => {
+    setStatus('connected');
+    await connection.invoke("UnirseASala").catch(console.error);
+});
+connection.onclose(() => setStatus('error'));
+
+async function iniciarConexion() {
+    try {
+        await connection.start();
+        await connection.invoke("UnirseASala");
+        console.log("✅ Unido a SalaEspera");
+        setStatus('connected');
+    } catch (e) {
+        setStatus('error');
+        console.error('SignalR error:', e);
+        setTimeout(iniciarConexion, 3000);
+    }
+}
+
+iniciarConexion();
+</script>
+}
