@@ -1,0 +1,106 @@
+@page
+@model Firmeza.Web.Pages.Importar.IndexModel
+@{
+    ViewData["Title"] = "Importar Excel";
+}
+
+<div class="max-w-3xl mx-auto space-y-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+        <div class="flex items-start gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                <i class="bi bi-file-earmark-excel text-2xl text-emerald-600"></i>
+            </div>
+            <div>
+                <h2 class="text-slate-800 font-bold text-lg">Importar datos desde Excel</h2>
+                <p class="text-slate-400 text-sm mt-1">
+                    Sube un archivo .xlsx con datos de productos y/o clientes. El sistema los detectará y normalizará automáticamente.
+                </p>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Archivo Excel (.xlsx)</label>
+                <input type="file" name="archivo" accept=".xlsx" required
+                       class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:bg-emerald-50 file:text-emerald-700 file:font-semibold hover:file:bg-emerald-100 border border-slate-200 rounded-xl p-1 cursor-pointer" />
+            </div>
+            <button type="submit"
+                class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors shadow-sm">
+                <i class="bi bi-upload"></i> Importar
+            </button>
+        </form>
+    </div>
+
+    @if (Model.Resultado != null)
+    {
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h3 class="text-slate-700 font-semibold mb-4">Resultado de la importación</h3>
+
+            @if (Model.Resultado.ProductosInsertados > 0 || Model.Resultado.ClientesInsertados > 0)
+            {
+                <div class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl px-4 py-3 mb-4 text-sm">
+                    <i class="bi bi-check-circle-fill text-lg"></i>
+                    <span>
+                        Productos insertados/actualizados: <strong>@Model.Resultado.ProductosInsertados</strong> &nbsp;|&nbsp;
+                        Clientes insertados/actualizados: <strong>@Model.Resultado.ClientesInsertados</strong>
+                    </span>
+                </div>
+            }
+
+            @if (Model.Resultado.Errores.Any())
+            {
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <div class="flex items-center gap-2 text-amber-700 font-semibold text-sm mb-2">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Advertencias
+                    </div>
+                    <ul class="space-y-1">
+                        @foreach (var e in Model.Resultado.Errores)
+                        {
+                            <li class="text-amber-700 text-xs flex items-start gap-2">
+                                <i class="bi bi-dot mt-0.5"></i> @e
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @if (!Model.Resultado.Errores.Any() && Model.Resultado.ProductosInsertados == 0 && Model.Resultado.ClientesInsertados == 0)
+            {
+                <div class="bg-blue-50 border border-blue-200 text-blue-700 rounded-xl px-4 py-3 text-sm">
+                    No se encontraron datos válidos para importar.
+                </div>
+            }
+        </div>
+    }
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <h3 class="text-slate-700 font-semibold mb-1">Formato esperado</h3>
+        <p class="text-slate-400 text-sm mb-5">Puedes mezclar productos y clientes en el mismo archivo. El sistema detecta las columnas automáticamente.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                <div class="text-emerald-700 font-semibold text-sm mb-3 flex items-center gap-2">
+                    <i class="bi bi-box-seam"></i> Columnas para Productos
+                </div>
+                <ul class="space-y-1.5 text-sm text-slate-600">
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-emerald-700 font-mono border border-emerald-100">nombre</code> — Nombre del producto</li>
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-emerald-700 font-mono border border-emerald-100">descripcion</code> — Descripción</li>
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-emerald-700 font-mono border border-emerald-100">categoria</code> — Categoría</li>
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-emerald-700 font-mono border border-emerald-100">precio</code> — Precio unitario</li>
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-emerald-700 font-mono border border-emerald-100">stock</code> — Cantidad en stock</li>
+                </ul>
+            </div>
+            <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                <div class="text-blue-700 font-semibold text-sm mb-3 flex items-center gap-2">
+                    <i class="bi bi-people"></i> Columnas para Clientes
+                </div>
+                <ul class="space-y-1.5 text-sm text-slate-600">
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-blue-700 font-mono border border-blue-100">nombre</code> — Nombre completo</li>
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-blue-700 font-mono border border-blue-100">documento</code> — Número de documento</li>
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-blue-700 font-mono border border-blue-100">correo</code> — Correo electrónico</li>
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-blue-700 font-mono border border-blue-100">telefono</code> — Teléfono</li>
+                    <li><code class="bg-white px-1.5 py-0.5 rounded text-xs text-blue-700 font-mono border border-blue-100">direccion</code> — Dirección</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

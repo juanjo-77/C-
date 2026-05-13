@@ -1,0 +1,50 @@
+@page "{id:int}"
+@model Firmeza.Web.Pages.Clientes.DeleteModel
+@{
+    ViewData["Title"] = "Eliminar Cliente";
+}
+
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="bg-red-50 px-8 py-6 border-b border-red-100 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-exclamation-triangle-fill text-3xl text-red-500"></i>
+            </div>
+            <h2 class="text-slate-800 font-bold text-xl">¿Eliminar este cliente?</h2>
+            <p class="text-slate-400 text-sm mt-1">Esta acción no se puede deshacer.</p>
+        </div>
+
+        <div class="px-8 py-6 space-y-3">
+            <div class="flex justify-between py-2 border-b border-slate-50">
+                <span class="text-slate-400 text-sm">Nombre</span>
+                <span class="text-slate-800 font-semibold text-sm">@Model.Cliente?.Nombre</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-slate-50">
+                <span class="text-slate-400 text-sm">Documento</span>
+                <span class="text-slate-700 text-sm">@Model.Cliente?.Documento</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-slate-50">
+                <span class="text-slate-400 text-sm">Correo</span>
+                <span class="text-slate-700 text-sm">@Model.Cliente?.Correo</span>
+            </div>
+            <div class="flex justify-between py-2">
+                <span class="text-slate-400 text-sm">Teléfono</span>
+                <span class="text-slate-700 text-sm">@Model.Cliente?.Telefono</span>
+            </div>
+        </div>
+
+        <div class="px-8 pb-6 flex gap-3">
+            <form method="post" class="flex-1">
+                <input asp-for="Cliente!.Id" type="hidden" />
+                <button type="submit"
+                    class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                    <i class="bi bi-trash"></i> Sí, eliminar
+                </button>
+            </form>
+            <a asp-page="Index"
+               class="flex-1 flex items-center justify-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium py-2.5 rounded-xl transition-colors text-sm">
+                Cancelar
+            </a>
+        </div>
+    </div>
+</div>

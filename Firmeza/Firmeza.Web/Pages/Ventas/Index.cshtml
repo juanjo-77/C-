@@ -1,0 +1,83 @@
+@page
+@model Firmeza.Web.Pages.Ventas.IndexModel
+@{
+    ViewData["Title"] = "Ventas";
+}
+
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-slate-800 font-bold text-xl">Ventas</h2>
+        <p class="text-slate-400 text-sm mt-0.5">@Model.Ventas.Count registros en total</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="/Ventas/ExportarExcel"
+           class="inline-flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-sm font-medium px-4 py-2 rounded-xl transition-colors border border-emerald-200">
+            <i class="bi bi-file-earmark-excel"></i> Excel
+        </a>
+        <a href="/Ventas/ExportarPdf"
+           class="inline-flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-medium px-4 py-2 rounded-xl transition-colors border border-red-200">
+            <i class="bi bi-file-earmark-pdf"></i> PDF
+        </a>
+        <a asp-page="Create"
+           class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm">
+            <i class="bi bi-plus-lg"></i> Nueva Venta
+        </a>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide border-b border-slate-100">
+                    <th class="px-6 py-3 text-left">#</th>
+                    <th class="px-6 py-3 text-left">Fecha</th>
+                    <th class="px-6 py-3 text-left">Cliente</th>
+                    <th class="px-6 py-3 text-right">IVA</th>
+                    <th class="px-6 py-3 text-right">Total</th>
+                    <th class="px-6 py-3 text-center">Recibo</th>
+                    <th class="px-6 py-3 text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                @foreach (var v in Model.Ventas)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-slate-400 font-mono text-xs">#@v.Id</td>
+                        <td class="px-6 py-4 text-slate-600">@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="px-6 py-4 font-semibold text-slate-800">@v.Cliente.Nombre</td>
+                        <td class="px-6 py-4 text-right text-slate-500">$@v.IVA.ToString("N2")</td>
+                        <td class="px-6 py-4 text-right font-bold text-emerald-600 text-base">$@v.Total.ToString("N2")</td>
+                        <td class="px-6 py-4 text-center">
+                            <a href="/recibos/recibo_@(v.Id).pdf" target="_blank"
+                               class="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                                <i class="bi bi-file-pdf"></i> Ver PDF
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a asp-page="Details" asp-route-id="@v.Id"
+                                   class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-500 transition-colors">
+                                    <i class="bi bi-eye text-xs"></i>
+                                </a>
+                                <a asp-page="Delete" asp-route-id="@v.Id"
+                                   class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 transition-colors">
+                                    <i class="bi bi-trash text-xs"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Ventas.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="px-6 py-16 text-center text-slate-400">
+                            <i class="bi bi-inbox text-4xl block mb-3 text-slate-300"></i>
+                            No hay ventas registradas
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
