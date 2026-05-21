@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Infrastructure;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
-
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddRazorPages();
 
@@ -31,28 +30,61 @@ builder.Services.ConfigureApplicationCookie(options => {
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope()) {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    foreach (var rol in new[] { "Administrador", "Cliente" }) {
-        if (!await roleManager.RoleExistsAsync(rol))
-            await roleManager.CreateAsync(new IdentityRole(rol));
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    // Esperar que postgres esté listo
+    var retries = 15;
+    while (retries > 0)
+    {
+        try
+        {
+            if (db.Database.CanConnect())
+            {
+                db.Database.Migrate();
+                break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DB no lista, reintentando... ({retries}) {ex.Message}");
+            retries--;
+            Thread.Sleep(4000);
+        }
     }
 
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var adminEmail = "admin@firmeza.com";
-    if (await userManager.FindByEmailAsync(adminEmail) == null) {
-        var admin = new ApplicationUser {
-            UserName = adminEmail,
-            Email = adminEmail,
-            NombreCompleto = "Administrador",
-            EmailConfirmed = true
-        };
-        await userManager.CreateAsync(admin, "Admin123*");
-        await userManager.AddToRoleAsync(admin, "Administrador");
+    try
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        foreach (var rol in new[] { "Administrador", "Cliente" })
+        {
+            if (!await roleManager.RoleExistsAsync(rol))
+                await roleManager.CreateAsync(new IdentityRole(rol));
+        }
+
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var adminEmail = "admin@firmeza.com";
+        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        {
+            var admin = new ApplicationUser {
+                UserName = adminEmail,
+                Email = adminEmail,
+                NombreCompleto = "Administrador",
+                EmailConfirmed = true
+            };
+            await userManager.CreateAsync(admin, "Admin123*");
+            await userManager.AddToRoleAsync(admin, "Administrador");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error en seed: {ex.Message}");
     }
 }
 
-if (!app.Environment.IsDevelopment()) {
+if (!app.Environment.IsDevelopment())
+{
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }

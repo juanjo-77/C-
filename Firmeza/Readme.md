@@ -1,190 +1,39 @@
-# Firmeza — Sistema de Gestión de Materiales de Construcción
+## ¿Qué pidieron?
 
-Sistema web administrativo desarrollado con ASP.NET Core 9 Razor Pages y PostgreSQL, orientado a la gestión de productos, clientes y ventas de una empresa de materiales de construcción.
-
----
-
-## Tecnologías utilizadas
-
-| Capa | Tecnología |
-|------|-----------|
-| Backend | ASP.NET Core 9 Razor Pages |
-| Base de datos | PostgreSQL 16 |
-| ORM | Entity Framework Core 9 |
-| Autenticación | ASP.NET Identity |
-| PDF | QuestPDF 2024 |
-| Excel | EPPlus 7 |
-| Pruebas | xUnit + EF InMemory |
-| Contenedor | Docker + Docker Compose |
+Construir un sistema completo llamado **Firmeza** para una empresa de materiales de construcción, que funcione todo junto con un solo comando de Docker.
 
 ---
 
-## Funcionalidades
+## ¿Qué construi?
 
-- Login seguro con roles (Administrador)
-- Dashboard con métricas en tiempo real
-- CRUD completo de Productos, Clientes y Ventas
-- Generación automática de recibo PDF al registrar una venta
-- Exportación de datos a Excel y PDF
-- Importación masiva desde archivos Excel desnormalizados
-- Validación y log de errores en importación
-- Pruebas unitarias con xUnit
-- Despliegue con Docker y Docker Compose
+**4 piezas que trabajan juntas:**
+
+**1. Firmeza.Web (Admin)** → Panel administrativo en web donde puedes:
+- Crear, editar y eliminar productos, clientes y ventas
+- Generar recibos PDF automáticamente al vender
+- Importar datos masivos desde Excel
+- Exportar listas a Excel y PDF
+
+**2. Firmeza.API** → Los mismos datos pero expuestos como servicios web (endpoints REST) para que otras apps los consuman
+
+**3. Firmeza.Client** → Una app en React que consume la API y muestra productos y clientes en una interfaz moderna
+
+**4. Firmeza.Tests** → 6 pruebas automáticas que verifican que la lógica funciona correctamente antes de arrancar todo
 
 ---
 
-## Requisitos previos (ejecución local)
+## ¿Cuál es el resultado final?
 
-- .NET 9 SDK
-- PostgreSQL 16
-- dotnet-ef tool
-
+Con un solo comando:
 ```bash
-dotnet tool install --global dotnet-ef --version 9.0.0
+sudo docker compose up --build
 ```
 
----
+Pasan estas cosas en orden:
+1. Se ejecutan las 6 pruebas — si alguna falla, todo se detiene
+2. Arranca la base de datos PostgreSQL
+3. Arranca el panel admin en `http://localhost:5000`
+4. Arranca la API en `http://localhost:5001/swagger`
+5. Arranca el cliente React en `http://localhost:3000`
 
-## Instalación y ejecución local
-
-```bash
-# 1. Clonar o descomprimir el proyecto
-cd ~/Desktop/Firmeza/Firmeza.Web
-
-# 2. Configurar la cadena de conexión en appsettings.json
-# "DefaultConnection": "Host=localhost;Database=firmeza_db;Username=postgres;Password=TU_PASSWORD"
-
-# 3. Crear la base de datos
-dotnet ef database update
-
-# 4. Ejecutar
-dotnet run
-```
-
-Accede en: `http://localhost:5000`  
-Credenciales por defecto:
-- **Email:** admin@firmeza.com  
-- **Contraseña:** Admin123*
-
----
-
-## Ejecución con Docker
-
-```bash
-# Desde la raíz del proyecto
-cd ~/Desktop/Firmeza
-
-# Construir y levantar servicios
-docker-compose up --build
-
-# La app estará disponible en:
-# http://localhost:8080
-```
-
----
-
-## Estructura del proyecto
-Firmeza/
-├── Firmeza.Web/
-│   ├── Data/
-│   │   └── ApplicationDbContext.cs
-│   ├── Models/
-│   │   ├── ApplicationUser.cs
-│   │   ├── Cliente.cs
-│   │   ├── Producto.cs
-│   │   ├── Venta.cs
-│   │   └── DetalleVenta.cs
-│   ├── Pages/
-│   │   ├── Account/         # Login, Logout, AccesoDenegado
-│   │   ├── Clientes/        # CRUD + Exportar Excel/PDF
-│   │   ├── Productos/       # CRUD + Exportar Excel/PDF
-│   │   ├── Ventas/          # CRUD + Exportar Excel/PDF + Recibos
-│   │   ├── Importar/        # Carga masiva desde Excel
-│   │   └── Dashboard.cshtml
-│   ├── wwwroot/
-│   │   └── recibos/         # PDFs generados automáticamente
-│   ├── Program.cs
-│   └── Dockerfile
-├── Firmeza.Tests/
-│   └── ProductoServiceTests.cs
-├── docker-compose.yml
-└── README.md
-
----
-
-## Modelo Entidad-Relación
-CLIENTE ||--o{ VENTA : "realiza"
-VENTA ||--|{ DETALLE_VENTA : "contiene"
-PRODUCTO ||--o{ DETALLE_VENTA : "incluido en"
-
-### Entidades principales
-
-**Producto**
-- Id, Nombre, Descripcion, Categoria, Precio, Stock
-
-**Cliente**
-- Id, Nombre, Documento, Correo, Telefono, Direccion
-
-**Venta**
-- Id, Fecha, ClienteId (FK), Total, IVA
-
-**DetalleVenta**
-- Id, VentaId (FK), ProductoId (FK), Cantidad, PrecioUnitario
-
----
-
-## Diagrama de clases simplificado
-ApplicationUser (IdentityUser)
-
-NombreCompleto
-
-Producto
-
-Id, Nombre, Descripcion
-Categoria, Precio, Stock
-
-Cliente
-
-Id, Nombre, Documento
-Correo, Telefono, Direccion
-
-Venta
-
-Id, Fecha, ClienteId
-Total, IVA
-Detalles: List<DetalleVenta>
-
-DetalleVenta
-
-Id, VentaId, ProductoId
-Cantidad, PrecioUnitario
-Subtotal (calculado)
-
-
----
-
-## Credenciales por defecto
-
-| Campo | Valor |
-|-------|-------|
-| Email | admin@firmeza.com |
-| Contraseña | Admin123* |
-| Rol | Administrador |
-
----
-
-## Recibos PDF
-
-Al registrar una venta, el sistema genera automáticamente un PDF en:
-wwwroot/recibos/recibo_{id}.pdf
-
-Descargable directamente desde la vista de Ventas.
-
----
-
-## Importación Excel
-
-El sistema acepta archivos `.xlsx` con columnas mezcladas. Detecta automáticamente si los datos corresponden a Productos o Clientes según las columnas presentes, normaliza e inserta o actualiza los registros.
-
-**Columnas para Productos:** nombre, descripcion, categoria, precio, stock  
-**Columnas para Clientes:** nombre, documento, correo, telefono, direccion
+**Sin abrir ningún IDE, sin instalar nada manualmente.**

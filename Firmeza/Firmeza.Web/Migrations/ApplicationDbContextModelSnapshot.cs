@@ -197,7 +197,7 @@ namespace Firmeza.Web.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Fecha")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal>("IVA")
                         .HasColumnType("numeric");

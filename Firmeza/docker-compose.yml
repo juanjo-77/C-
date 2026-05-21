@@ -1,6 +1,13 @@
-version: '3.8'
-
 services:
+
+  tests:
+    build:
+      context: .
+      dockerfile: Firmeza.Tests/Dockerfile
+    container_name: firmeza_tests
+    networks:
+      - firmeza_net
+
   db:
     image: postgres:16
     container_name: firmeza_db
@@ -9,30 +16,79 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Qwe.123*
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres -d firmeza_db"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
+      start_period: 10s
+    networks:
+      - firmeza_net
+    depends_on:
+      tests:
+        condition: service_completed_successfully
 
-  web:
+  api:
     build:
-      context: ./Firmeza.Web
+      context: ./Firmeza.API
       dockerfile: Dockerfile
-    container_name: firmeza_web
+    container_name: firmeza_api
     ports:
-      - "8080:8080"
+      - "5001:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=db;Database=firmeza_db;Username=postgres;Password=Qwe.123*
     depends_on:
       db:
         condition: service_healthy
+      tests:
+        condition: service_completed_successfully
+    networks:
+      - firmeza_net
+
+  admin:
+    build:
+      context: ./Firmeza.Web
+      dockerfile: Dockerfile
+    container_name: firmeza_admin
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=db;Database=firmeza_db;Username=postgres;Password=Qwe.123*
+    depends_on:
+      db:
+        condition: service_healthy
+      tests:
+        condition: service_completed_successfully
     volumes:
       - recibos_data:/app/wwwroot/recibos
+    networks:
+      - firmeza_net
+
+  client:
+    build:
+      context: ./Firmeza.Client
+      dockerfile: Dockerfile
+    container_name: firmeza_client
+    ports:
+      - "3000:80"
+    depends_on:
+      tests:
+        condition: service_completed_successfully
+      api:
+        condition: service_started
+    networks:
+      - firmeza_net
+
+networks:
+  firmeza_net:
+    driver: bridge
 
 volumes:
   postgres_data:
